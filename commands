@@ -1,0 +1,5 @@
+# Run presto-cli:
+docker run -i -t brndnmtthws/presto-cli --server presto-coordinator-prest.marathon.mesos:12000 --catalog cassandra --schema twitter
+
+# SQL query:
+select substr(tweet_text, 1, 40) as tweet_text, batchtime, score from tweets order by batchtime desc limit 20;

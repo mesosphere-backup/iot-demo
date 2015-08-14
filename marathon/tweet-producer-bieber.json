@@ -1,0 +1,21 @@
+{
+  "id": "tweet-producer",
+  "cmd":"java -Xmx2000m -jar twitter-assembly-1.0.jar Justin Bieber",
+  "env":{
+    "TWEET_OAUTH_CONSUMER_KEY":"",
+    "TWEET_OAUTH_CONSUMER_SECRET":"",
+    "TWEET_OAUTH_TOKEN_KEY":"",
+    "TWEET_OAUTH_TOKEN_SECRET":"",
+    "TWEET_PRODUCER_KAFKA_BROKERS":"broker-0.kafka.mesos:1025,broker-1.kafka.mesos:1025,broker-2.kafka.mesos:1025",
+    "TWEET_PRODUCER_KAFKA_TOPIC":"dem-tweets"
+  },
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "brndnmtthws/tweets"
+    }
+  },
+  "cpus": 2,
+  "mem": 2048,
+  "instances": 1
+}
