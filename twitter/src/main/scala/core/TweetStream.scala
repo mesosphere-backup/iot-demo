@@ -1,5 +1,7 @@
 package core
 
+import java.net.URLEncoder
+
 import spray.httpx.unmarshalling.{MalformedContent, Unmarshaller, Deserialized}
 import spray.http._
 import spray.json._
@@ -80,7 +82,8 @@ class TweetStreamerActor(uri: Uri, processor: ActorRef) extends Actor with Tweet
 
   def receive: Receive = {
     case query: String =>
-      val body = HttpEntity(ContentType(MediaTypes.`application/x-www-form-urlencoded`), s"track=$query")
+      val urlQuery = URLEncoder.encode(query, "UTF-8") replace ("+", "%20") replace ("%7E", "~")
+      val body = HttpEntity(ContentType(MediaTypes.`application/x-www-form-urlencoded`), s"track=$urlQuery")
       val rq = HttpRequest(HttpMethods.POST, uri = uri, entity = body) ~> authorize
       sendTo(io).withResponsesReceivedBy(self)(rq)
     case ChunkedResponseStart(_) =>
