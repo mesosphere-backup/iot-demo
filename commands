@@ -1,3 +1,13 @@
+# Start DCOS services:
+dcos package install cassandra
+dcos package install kafka
+dcos kafka add 0..2
+dcos kafka start 0..2
+dcos marathon app add tweet-producer-bieber.json
+dcos marathon app add tweet-producer-trump.json
+dcos marathon app add tweet-consumer.json
+dcos marathon group add presto.json
+
 # Run presto-cli:
 docker run -i -t brndnmtthws/presto-cli --server presto-coordinator-prest.marathon.mesos:12000 --catalog cassandra --schema twitter
 
