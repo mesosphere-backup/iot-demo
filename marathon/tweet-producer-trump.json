@@ -1,6 +1,6 @@
 {
-  "id": "tweet-producer",
-  "cmd":"java -Xmx2000m -jar twitter-assembly-1.0.jar Trump",
+  "id": "tweet-producer-trump",
+  "cmd":"java -Xmx2000m -jar twitter-assembly-1.0.jar Donald Trump",
   "env":{
     "TWEET_OAUTH_CONSUMER_KEY":"",
     "TWEET_OAUTH_CONSUMER_SECRET":"",
