@@ -13,11 +13,11 @@ dcos kafka status
 dcos marathon app add tweet-producer-bieber.json
 dcos marathon app add tweet-producer-trump.json
 
-# Run tweet consumer
-dcos marathon app add tweet-consumer.json
-
-# Finally, start Presto
+# Start Presto:
 dcos marathon group add presto.json
+
+# Last, run tweet consumer
+dcos marathon app add tweet-consumer.json
 
 # Run presto-cli:
 docker run -i -t brndnmtthws/presto-cli --server presto-coordinator-prest.marathon.mesos:12000 --catalog cassandra --schema twitter
