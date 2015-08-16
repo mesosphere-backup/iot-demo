@@ -14,7 +14,7 @@
       "forcePullImage": true
     }
   },
-  "cpus": 2,
+  "cpus": 0.5,
   "mem": 2048,
   "instances": 1
 }
