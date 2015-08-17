@@ -8,4 +8,3 @@ RUN apt-get update
 RUN apt-get install -y --force-yes sbt
 
 RUN sbt -Dsbt.log.format=false assembly
-RUN find . -iname '*-assembly-1.0.jar' -exec mv {} . \;

@@ -1,5 +1,7 @@
 package core
 
+import java.net.URLEncoder
+
 import akka.actor.{Props, ActorSystem}
 
 object Main extends App {
@@ -7,9 +9,9 @@ object Main extends App {
   println(s"Running with query: $query")
 
   val system = ActorSystem()
-  val sentiment = system.actorOf(Props(new ProducerActor))
+  val producer = system.actorOf(Props(new ProducerActor))
   val stream = system.actorOf(Props(
-    new TweetStreamerActor(TweetStreamerActor.twitterUri, sentiment) with OAuthTwitterAuthorization))
+    new TweetStreamerActor(TweetStreamerActor.twitterUri, producer, query) with OAuthTwitterAuthorization))
 
-  stream ! query
+  stream ! "filter"
 }

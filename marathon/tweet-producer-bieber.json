@@ -1,6 +1,6 @@
 {
   "id": "tweet-producer-bieber",
-  "cmd":"java -Xmx2000m -jar twitter-assembly-1.0.jar Justin Bieber",
+  "cmd":"java -Xmx2000m -jar twitter/target/scala-2.10/twitter-assembly-1.0.jar Justin Bieber",
   "env":{
     "TWEET_OAUTH_CONSUMER_KEY":"",
     "TWEET_OAUTH_CONSUMER_SECRET":"",

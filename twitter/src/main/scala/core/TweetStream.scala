@@ -1,7 +1,5 @@
 package core
 
-import java.net.URLEncoder
-
 import spray.httpx.unmarshalling.{MalformedContent, Unmarshaller, Deserialized}
 import spray.http._
 import spray.json._
@@ -12,6 +10,7 @@ import domain.{Place, User, Tweet}
 import scala.util.Try
 import spray.can.Http
 import akka.io.IO
+import scala.concurrent.duration._
 
 trait TwitterAuthorization {
   def authorize: HttpRequest => HttpRequest
@@ -76,18 +75,22 @@ object TweetStreamerActor {
   val twitterUri = Uri("https://stream.twitter.com/1.1/statuses/filter.json")
 }
 
-class TweetStreamerActor(uri: Uri, processor: ActorRef) extends Actor with TweetMarshaller {
+class TweetStreamerActor(uri: Uri, producer: ActorRef, query: String) extends Actor with TweetMarshaller {
   this: TwitterAuthorization =>
   val io = IO(Http)(context.system)
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   def receive: Receive = {
-    case query: String =>
-      val urlQuery = URLEncoder.encode(query, "UTF-8") replace ("+", "%20") replace ("%7E", "~")
-      val body = HttpEntity(ContentType(MediaTypes.`application/x-www-form-urlencoded`), s"track=$urlQuery")
+    case "filter" =>
+      println(s"Sending query request to $uri")
+      val body = HttpEntity(ContentType(MediaTypes.`application/x-www-form-urlencoded`), s"track=$query")
       val rq = HttpRequest(HttpMethods.POST, uri = uri, entity = body) ~> authorize
       sendTo(io).withResponsesReceivedBy(self)(rq)
     case ChunkedResponseStart(_) =>
-    case MessageChunk(entity, _) => TweetUnmarshaller(entity).fold(_ => (), processor !)
+    case MessageChunk(entity, _) => TweetUnmarshaller(entity).fold(_ => (), producer !)
     case _ =>
+      context.system.scheduler.scheduleOnce(5 seconds) {
+        self ! "filter"
+      }
   }
 }
