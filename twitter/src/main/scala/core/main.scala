@@ -11,7 +11,7 @@ object Main extends App {
   val system = ActorSystem()
   val producer = system.actorOf(Props(new ProducerActor))
   val stream = system.actorOf(Props(
-    new TweetStreamerActor(TweetStreamerActor.twitterUri, producer, query) with OAuthTwitterAuthorization))
+    new TweetStreamerActor(TweetStreamerActor.twitterUri, producer, query)))
 
   stream ! "filter"
 }
