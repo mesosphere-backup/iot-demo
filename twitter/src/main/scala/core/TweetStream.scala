@@ -12,25 +12,6 @@ import spray.can.Http
 import akka.io.IO
 import scala.concurrent.duration._
 
-trait TwitterAuthorization {
-  def authorize: HttpRequest => HttpRequest
-}
-
-trait OAuthTwitterAuthorization extends TwitterAuthorization {
-  import OAuth._
-
-  val consumer = Consumer(
-    sys.env("TWEET_OAUTH_CONSUMER_KEY"),
-    sys.env("TWEET_OAUTH_CONSUMER_SECRET")
-  )
-  val token = Token(
-    sys.env("TWEET_OAUTH_TOKEN_KEY"),
-    sys.env("TWEET_OAUTH_TOKEN_SECRET")
-  )
-
-  val authorize: (HttpRequest) => HttpRequest = oAuthAuthorizer(consumer, token)
-}
-
 trait TweetMarshaller {
 
   implicit object TweetUnmarshaller extends Unmarshaller[Tweet] {
@@ -76,18 +57,17 @@ object TweetStreamerActor {
 }
 
 class TweetStreamerActor(uri: Uri, producer: ActorRef, query: String) extends Actor with TweetMarshaller {
-  this: TwitterAuthorization =>
-  val io = IO(Http)(context.system)
   import scala.concurrent.ExecutionContext.Implicits.global
 
   def receive: Receive = {
     case "filter" =>
-      println(s"Sending query request to $uri")
-      val body = HttpEntity(ContentType(MediaTypes.`application/x-www-form-urlencoded`), s"track=$query")
-      val rq = HttpRequest(HttpMethods.POST, uri = uri, entity = body) ~> authorize
-      sendTo(io).withResponsesReceivedBy(self)(rq)
-    case ChunkedResponseStart(_) =>
-    case MessageChunk(entity, _) => TweetUnmarshaller(entity).fold(_ => (), producer !)
+      import scala.io.Source
+      for(line <- Source.fromFile("tweets-json.txt").getLines()) {
+        TweetUnmarshaller(line).fold(_ => (), producer !)
+        Thread.sleep(100)
+      }
+      Thread.sleep(500)
+      self ! "filter"
     case _ =>
       context.system.scheduler.scheduleOnce(5 seconds) {
         self ! "filter"
