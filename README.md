@@ -12,6 +12,7 @@ dcos package install kafka
 
 # When Kafka is healthy, add brokers
 dcos kafka add 0..2
+dcos kafka update 0..2 --options num.io.threads=16,num.partitions=12
 dcos kafka start 0..2
 # Show Kafka cluster status
 dcos kafka status
