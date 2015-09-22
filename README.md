@@ -32,8 +32,9 @@ dcos marathon app add marathon/tweet-consumer.json
 docker run -i -t brndnmtthws/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
 ```
 
+# Execute some SQL queries with Presto
+
 ```sql
-# Execute some SQL queries.
 # Get a list of recent tweets
 SELECT substr(tweet_text, 1, 40) AS tweet_text, batchtime, score FROM tweets ORDER BY batchtime DESC LIMIT 20;
 # Count tweets by score
