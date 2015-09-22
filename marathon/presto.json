@@ -2,7 +2,7 @@
   "id":"/presto",
   "apps":[
     {
-    "id":"/presto/presto-worker",
+    "id":"/presto/worker",
     "cmd":"./etc/uuid.bash >> etc/node.properties && cp etc/worker-config.properties etc/config.properties && ./bin/launcher run",
     "instances":3,
     "cpus":1.0,
@@ -13,7 +13,7 @@
     "container": {
       "type": "DOCKER",
       "docker": {
-        "image": "brndnmtthws/presto-server:0.114"
+        "image": "brndnmtthws/presto-server:0.118"
       }
     },
     "requirePorts":true,
@@ -33,11 +33,11 @@
     }
     ],
     "dependencies":[
-      "/presto/presto-coordinator"
+      "/presto/coordinator"
     ]
   },
   {
-    "id":"/presto/presto-coordinator",
+    "id":"/presto/coordinator",
     "cmd":"./etc/uuid.bash >> etc/node.properties && cp etc/coordinator-config.properties etc/config.properties && ./bin/launcher run",
     "instances":1,
     "cpus":1.0,
@@ -48,7 +48,7 @@
     "container": {
       "type": "DOCKER",
       "docker": {
-        "image": "brndnmtthws/presto-server:0.114"
+        "image": "brndnmtthws/presto-server:0.118"
       }
     },
     "requirePorts":true,

@@ -29,7 +29,7 @@ dcos marathon group add marathon/presto.json
 dcos marathon app add marathon/tweet-consumer.json
 
 # Run presto-cli:
-docker run -i -t brndnmtthws/presto-cli --server presto-coordinator-prest.marathon.mesos:12000 --catalog cassandra --schema twitter
+docker run -i -t brndnmtthws/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
 
 # Execute some SQL queries.
 # Get a list of recent tweets
