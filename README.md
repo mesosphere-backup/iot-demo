@@ -30,22 +30,24 @@ dcos marathon app add marathon/tweet-consumer.json
 
 # Run presto-cli:
 docker run -i -t brndnmtthws/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
+```
 
+```sql
 # Execute some SQL queries.
 # Get a list of recent tweets
-select substr(tweet_text, 1, 40) as tweet_text, batchtime, score from tweets order by batchtime desc limit 20;
+SELECT substr(tweet_text, 1, 40) AS tweet_text, batchtime, score FROM tweets ORDER BY batchtime DESC LIMIT 20;
 # Count tweets by score
-select count(1) as tweet_count, score from tweets group by score order by score;
+SELECT count(1) AS tweet_count, score FROM tweets GROUP BY score ORDER BY score;
 # Count of tweets by language
-select json_extract(tweet, '$.lang') as languages, count(*) as count from tweets group by json_extract(tweet, '$.lang') order by count desc;
+SELECT json_extract(tweet, '$.lang') AS languages, count(*) AS count FROM tweets GROUP BY json_extract(tweet, '$.lang') ORDER BY count desc;
 # Count of tweets by location
-select
-  json_extract(tweet, '$.user.location') as location,
-  count(*) as count
-from tweets
-where
-  json_extract(tweet, '$.user.location') is not null and
+SELECT
+  json_extract(tweet, '$.user.location') AS location,
+  count(*) AS count
+FROM tweets
+WHERE
+  json_extract(tweet, '$.user.location') IS NOT NULL AND
   length(json_format(json_extract(tweet, '$.user.location'))) > 2
-group by json_extract(tweet, '$.user.location')
-order by count desc;
+GROUP BY json_extract(tweet, '$.user.location')
+ORDER BY count DESC;
 ```
