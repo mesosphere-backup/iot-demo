@@ -49,5 +49,6 @@ WHERE
   json_extract(tweet, '$.user.location') IS NOT NULL AND
   length(json_format(json_extract(tweet, '$.user.location'))) > 2
 GROUP BY json_extract(tweet, '$.user.location')
-ORDER BY count DESC;
+ORDER BY count DESC
+LIMIT 100;
 ```
