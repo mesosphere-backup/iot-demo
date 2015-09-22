@@ -37,10 +37,13 @@ docker run -i -t brndnmtthws/presto-cli --server coordinator-presto.marathon.mes
 ```sql
 # Get a list of recent tweets
 SELECT substr(tweet_text, 1, 40) AS tweet_text, batchtime, score FROM tweets ORDER BY batchtime DESC LIMIT 20;
+
 # Count tweets by score
 SELECT count(1) AS tweet_count, score FROM tweets GROUP BY score ORDER BY score;
+
 # Count of tweets by language
 SELECT json_extract(tweet, '$.lang') AS languages, count(*) AS count FROM tweets GROUP BY json_extract(tweet, '$.lang') ORDER BY count desc;
+
 # Count of tweets by location
 SELECT
   json_extract(tweet, '$.user.location') AS location,
