@@ -36,4 +36,16 @@ docker run -i -t brndnmtthws/presto-cli --server coordinator-presto.marathon.mes
 select substr(tweet_text, 1, 40) as tweet_text, batchtime, score from tweets order by batchtime desc limit 20;
 # Count tweets by score
 select count(1) as tweet_count, score from tweets group by score order by score;
+# Count of tweets by language
+select json_extract(tweet, '$.lang') as languages, count(*) as count from tweets group by json_extract(tweet, '$.lang') order by count desc;
+# Count of tweets by location
+select
+  json_extract(tweet, '$.user.location') as location,
+  count(*) as count
+from tweets
+where
+  json_extract(tweet, '$.user.location') is not null and
+  length(json_format(json_extract(tweet, '$.user.location'))) > 2
+group by json_extract(tweet, '$.user.location')
+order by count desc;
 ```
