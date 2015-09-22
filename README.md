@@ -35,6 +35,9 @@ docker run -i -t brndnmtthws/presto-cli --server coordinator-presto.marathon.mes
 # Execute some SQL queries with Presto
 
 ```sql
+# Count all the tweets
+SELECT count(1) FROM tweets;
+
 # Get a list of recent tweets
 SELECT substr(tweet_text, 1, 40) AS tweet_text, batchtime, score FROM tweets ORDER BY batchtime DESC LIMIT 20;
 
