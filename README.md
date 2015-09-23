@@ -50,12 +50,55 @@ SELECT json_extract(tweet, '$.lang') AS languages, count(*) AS count FROM tweets
 # Count of tweets by location
 SELECT
   json_extract(tweet, '$.user.location') AS location,
-  count(*) AS count
+  count(*) AS tweet_count
 FROM tweets
 WHERE
   json_extract(tweet, '$.user.location') IS NOT NULL AND
   length(json_format(json_extract(tweet, '$.user.location'))) > 2
 GROUP BY json_extract(tweet, '$.user.location')
-ORDER BY count DESC
+ORDER BY tweet_count DESC
 LIMIT 100;
+
+# Most prolific tweeters
+SELECT
+  json_extract(tweet, '$.user.screen_name') AS screen_name,
+  count(*) AS tweet_count
+FROM tweets
+WHERE
+  json_extract(tweet, '$.user.screen_name') IS NOT NULL AND
+  length(json_format(json_extract(tweet, '$.user.screen_name'))) > 2
+GROUP BY json_extract(tweet, '$.user.screen_name')
+ORDER BY tweet_count DESC
+LIMIT 100;
+
+# Most retweeted
+WITH 
+top_retweets AS (
+  SELECT
+    json_extract_scalar(tweet, '$.retweeted_status.id') AS id,
+    count(*) as retweet_count
+  FROM tweets
+  WHERE
+    json_extract(tweet, '$.retweeted_status') IS NOT NULL
+  GROUP BY json_extract_scalar(tweet, '$.retweeted_status.id')
+),
+all_tweets AS (
+  SELECT tweet_text, 
+  json_extract_scalar(tweet, '$.retweeted_status.id') AS id
+  FROM tweets
+),
+joined_tweets AS (
+SELECT
+  all_tweets.tweet_text as tweet_text,
+  top_retweets.retweet_count AS retweet_count,
+  top_retweets.id AS id
+FROM top_retweets
+LEFT JOIN all_tweets
+ON top_retweets.id = all_tweets.id
+ORDER BY retweet_count DESC
+)
+SELECT arbitrary(tweet_text), arbitrary(retweet_count), id FROM joined_tweets
+GROUP BY id
+LIMIT 100;
+;
 ```
