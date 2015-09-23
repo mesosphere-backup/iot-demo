@@ -26,7 +26,10 @@ dcos marathon app add marathon/tweet-producer-trump.json
 dcos marathon group add marathon/presto.json
 
 # Last, run tweet consumer
-dcos marathon app add marathon/tweet-consumer.json
+dcos marathon app add marathon/tweet-consumer.
+
+# Run cqlsh:
+docker run -i -t --net=host --entrypoint=/usr/bin/cqlsh spotify/cassandra cassandra-dcos-node.cassandra.dcos.mesos 9160
 
 # Run presto-cli:
 docker run -i -t brndnmtthws/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
