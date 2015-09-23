@@ -97,8 +97,7 @@ LEFT JOIN all_tweets
 ON top_retweets.id = all_tweets.id
 ORDER BY retweet_count DESC
 )
-SELECT arbitrary(tweet_text), arbitrary(retweet_count), id FROM joined_tweets
+SELECT arbitrary(tweet_text) AS tweet_text, arbitrary(retweet_count) AS retweet_count FROM joined_tweets
 GROUP BY id
 LIMIT 100;
-;
 ```
