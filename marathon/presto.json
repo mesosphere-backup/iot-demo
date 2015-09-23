@@ -22,7 +22,7 @@
     "maxLaunchDelaySeconds":3600,
     "healthChecks":[
       {
-      "path":"/",
+      "path":"/v1/query",
       "protocol":"HTTP",
       "portIndex":0,
       "gracePeriodSeconds":10,
@@ -57,7 +57,7 @@
     "maxLaunchDelaySeconds":3600,
     "healthChecks":[
       {
-      "path":"/v1/node",
+      "path":"/v1/query",
       "protocol":"HTTP",
       "portIndex":0,
       "gracePeriodSeconds":10,
