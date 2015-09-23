@@ -62,7 +62,7 @@ SELECT substr(tweet_text, 1, 40) AS tweet_text, batchtime, score FROM tweets ORD
 SELECT count(1) AS tweet_count, score FROM tweets GROUP BY score ORDER BY score;
 
 # Count of tweets by language
-SELECT json_extract_scalar(tweet, '$.lang') AS languages, count(*) AS count FROM tweets GROUP BY json_extract_scalar(tweet, '$.lang') ORDER BY count desc;
+SELECT json_extract_scalar(tweet, '$.lang') AS languages, count(*) AS count FROM tweets GROUP BY json_extract_scalar(tweet, '$.lang') ORDER BY count DESC;
 
 # Count of tweets by location
 SELECT
@@ -93,7 +93,7 @@ WITH
 top_retweets AS (
   SELECT
     json_extract_scalar(tweet, '$.retweeted_status.id') AS id,
-    count(*) as retweet_count
+    count(*) AS retweet_count
   FROM tweets
   WHERE
     json_extract(tweet, '$.retweeted_status') IS NOT NULL
@@ -105,7 +105,7 @@ all_tweets AS (
   FROM tweets
 )
 SELECT
-  arbitrary(all_tweets.tweet_text) as tweet_text,
+  arbitrary(all_tweets.tweet_text) AS tweet_text,
   arbitrary(top_retweets.retweet_count) AS retweet_count
 FROM top_retweets
 LEFT JOIN all_tweets
