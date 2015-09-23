@@ -3,7 +3,7 @@
 # iot-demo
 IoT - It's the thing you want! And so here's a full-stack demo.
 
-# Sequence of commands (to run)
+# Sequence of commands (to run) with the DCOS CLI
 
 ```
 # Start DCOS services:
@@ -27,12 +27,18 @@ dcos marathon group add marathon/presto.json
 
 # Last, run tweet consumer
 dcos marathon app add marathon/tweet-consumer.json
+```
+
+# Examine those data
+
+SSH into one of the masters or worker nodes in the cluster, and try either cqlsh or Presto:
+
+```
+# Run presto-cli:
+docker run -i -t brndnmtthws/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
 
 # Run cqlsh:
 docker run -i -t --net=host --entrypoint=/usr/bin/cqlsh spotify/cassandra cassandra-dcos-node.cassandra.dcos.mesos 9160
-
-# Run presto-cli:
-docker run -i -t brndnmtthws/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
 ```
 
 # Execute some SQL queries with Presto
