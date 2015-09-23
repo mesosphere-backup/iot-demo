@@ -3,6 +3,14 @@
 # iot-demo
 IoT - It's the thing you want! And so here's a full-stack demo.
 
+## Prerequisites
+
+- DCOS cluster
+- You'll need enough capacity to run all the services, which may require at least 5 worker nodes
+- SSH access to the cluster
+- Internet access from inside the cluster
+- Twitter account with API keys ([see here for details](https://dev.twitter.com/oauth/overview/application-owner-access-tokens))
+
 # Sequence of commands (to run) with the DCOS CLI
 
 ```
