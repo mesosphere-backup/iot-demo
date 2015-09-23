@@ -52,19 +52,19 @@ docker run -i -t --net=host --entrypoint=/usr/bin/cqlsh spotify/cassandra cassan
 # Execute some SQL queries with Presto
 
 ```sql
-# Count all the tweets
+-- Count all the tweets
 SELECT count(1) FROM tweets;
 
-# Get a list of recent tweets
+-- Get a list of recent tweets
 SELECT substr(tweet_text, 1, 40) AS tweet_text, batchtime, score FROM tweets ORDER BY batchtime DESC LIMIT 20;
 
-# Count tweets by score
+-- Count tweets by score
 SELECT count(1) AS tweet_count, score FROM tweets GROUP BY score ORDER BY score;
 
-# Count of tweets by language
+-- Count of tweets by language
 SELECT json_extract_scalar(tweet, '$.lang') AS languages, count(*) AS count FROM tweets GROUP BY json_extract_scalar(tweet, '$.lang') ORDER BY count DESC;
 
-# Count of tweets by location
+-- Count of tweets by location
 SELECT
   json_extract_scalar(tweet, '$.user.location') AS location,
   count(*) AS tweet_count
@@ -76,7 +76,7 @@ GROUP BY json_extract_scalar(tweet, '$.user.location')
 ORDER BY tweet_count DESC
 LIMIT 100;
 
-# Most prolific tweeters
+-- Most prolific tweeters
 SELECT
   json_extract_scalar(tweet, '$.user.screen_name') AS screen_name,
   count(*) AS tweet_count
@@ -88,7 +88,7 @@ GROUP BY json_extract_scalar(tweet, '$.user.screen_name')
 ORDER BY tweet_count DESC
 LIMIT 100;
 
-# Most retweeted
+-- Most retweeted
 WITH
 top_retweets AS (
   SELECT
