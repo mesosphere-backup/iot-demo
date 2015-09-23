@@ -62,34 +62,34 @@ SELECT substr(tweet_text, 1, 40) AS tweet_text, batchtime, score FROM tweets ORD
 SELECT count(1) AS tweet_count, score FROM tweets GROUP BY score ORDER BY score;
 
 # Count of tweets by language
-SELECT json_extract(tweet, '$.lang') AS languages, count(*) AS count FROM tweets GROUP BY json_extract(tweet, '$.lang') ORDER BY count desc;
+SELECT json_extract_scalar(tweet, '$.lang') AS languages, count(*) AS count FROM tweets GROUP BY json_extract_scalar(tweet, '$.lang') ORDER BY count desc;
 
 # Count of tweets by location
 SELECT
-  json_extract(tweet, '$.user.location') AS location,
+  json_extract_scalar(tweet, '$.user.location') AS location,
   count(*) AS tweet_count
 FROM tweets
 WHERE
-  json_extract(tweet, '$.user.location') IS NOT NULL AND
-  length(json_format(json_extract(tweet, '$.user.location'))) > 2
-GROUP BY json_extract(tweet, '$.user.location')
+  json_extract_scalar(tweet, '$.user.location') IS NOT NULL AND
+  length(json_extract_scalar(tweet, '$.user.location')) > 0
+GROUP BY json_extract_scalar(tweet, '$.user.location')
 ORDER BY tweet_count DESC
 LIMIT 100;
 
 # Most prolific tweeters
 SELECT
-  json_extract(tweet, '$.user.screen_name') AS screen_name,
+  json_extract_scalar(tweet, '$.user.screen_name') AS screen_name,
   count(*) AS tweet_count
 FROM tweets
 WHERE
-  json_extract(tweet, '$.user.screen_name') IS NOT NULL AND
-  length(json_format(json_extract(tweet, '$.user.screen_name'))) > 2
-GROUP BY json_extract(tweet, '$.user.screen_name')
+  json_extract_scalar(tweet, '$.user.screen_name') IS NOT NULL AND
+  length(json_extract_scalar(tweet, '$.user.screen_name')) > 0
+GROUP BY json_extract_scalar(tweet, '$.user.screen_name')
 ORDER BY tweet_count DESC
 LIMIT 100;
 
 # Most retweeted
-WITH 
+WITH
 top_retweets AS (
   SELECT
     json_extract_scalar(tweet, '$.retweeted_status.id') AS id,
@@ -100,7 +100,7 @@ top_retweets AS (
   GROUP BY json_extract_scalar(tweet, '$.retweeted_status.id')
 ),
 all_tweets AS (
-  SELECT tweet_text, 
+  SELECT tweet_text,
   json_extract_scalar(tweet, '$.retweeted_status.id') AS id
   FROM tweets
 )
