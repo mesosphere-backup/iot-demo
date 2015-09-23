@@ -86,18 +86,14 @@ all_tweets AS (
   SELECT tweet_text, 
   json_extract_scalar(tweet, '$.retweeted_status.id') AS id
   FROM tweets
-),
-joined_tweets AS (
+)
 SELECT
-  all_tweets.tweet_text as tweet_text,
-  top_retweets.retweet_count AS retweet_count,
-  top_retweets.id AS id
+  arbitrary(all_tweets.tweet_text) as tweet_text,
+  arbitrary(top_retweets.retweet_count) AS retweet_count
 FROM top_retweets
 LEFT JOIN all_tweets
 ON top_retweets.id = all_tweets.id
+GROUP BY top_retweets.id
 ORDER BY retweet_count DESC
-)
-SELECT arbitrary(tweet_text) AS tweet_text, arbitrary(retweet_count) AS retweet_count FROM joined_tweets
-GROUP BY id
 LIMIT 100;
 ```
