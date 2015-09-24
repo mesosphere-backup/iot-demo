@@ -1,6 +1,6 @@
 {
-  "id": "/tweet-producer-trump",
-  "args":["Trump"],
+  "id": "/tweet-producer-jobs",
+  "args":["jobs"],
   "env":{
     "TWEET_OAUTH_CONSUMER_KEY":"OAvhyyypPXua9ZHWog3HHLRV8",
     "TWEET_OAUTH_CONSUMER_SECRET":"bgTdCwK81zbpp0VWILM7gGD93kkxBn85WZTFbCoKWq9JUX5Jmw",
