@@ -1,10 +1,11 @@
 package core
 
-import java.net.URLEncoder
-
-import akka.actor.{Props, ActorSystem}
+import akka.actor.{ActorSystem, Props}
+import org.apache.log4j.BasicConfigurator
 
 object Main extends App {
+  BasicConfigurator.configure()
+
   val query = args.mkString(" ")
   println(s"Running with query: $query")
 
