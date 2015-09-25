@@ -1,10 +1,11 @@
 package core
 
-import spray.httpx.unmarshalling.{MalformedContent, Unmarshaller, Deserialized}
+import org.slf4j.LoggerFactory
+import spray.httpx.unmarshalling.{DeserializationError, MalformedContent, Unmarshaller, Deserialized}
 import spray.http._
 import spray.json._
 import spray.client.pipelining._
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{ActorLogging, ActorRef, Actor}
 import spray.http.HttpRequest
 import domain.{Place, User, Tweet}
 import scala.util.Try
@@ -33,7 +34,7 @@ trait OAuthTwitterAuthorization extends TwitterAuthorization {
 
 trait TweetMarshaller {
 
-  implicit object TweetUnmarshaller extends Unmarshaller[Tweet] {
+  object TweetUnmarshaller {
 
     def mkUser(user: JsObject): Deserialized[User] = {
       (user.fields("id_str"), user.fields("lang"), user.fields("followers_count")) match {
@@ -53,14 +54,14 @@ trait TweetMarshaller {
       case _ => Left(MalformedContent("bad tweet"))
     }
 
-    def apply(entity: HttpEntity): Deserialized[Tweet] = {
+    def apply(entityString: String): Deserialized[Tweet] = {
       Try {
-        val json = JsonParser(entity.asString).asJsObject
+        val json = JsonParser(entityString).asJsObject
         (json.fields.get("id_str"), json.fields.get("text"), json.fields.get("place"), json.fields.get("user")) match {
           case (Some(JsString(id)), Some(JsString(text)), Some(place), Some(user: JsObject)) =>
             val x = mkUser(user).fold(x => Left(x), { user =>
               mkPlace(place).fold(x => Left(x), { place =>
-                Right(Tweet(id, user, text, place, entity.asString))
+                Right(Tweet(id, user, text, place, entityString))
               })
             })
             x
@@ -71,23 +72,64 @@ trait TweetMarshaller {
   }
 }
 
+/**
+ * Receives a stream of string chunks and exposes
+ * all received segments that are delimited by newlines as an iterator.
+ */
+class ChunkCombiner {
+  private[this] var buffer: String = ""
+
+  def feed(chunk: String): Unit = {
+    buffer += chunk
+  }
+
+  def iterator: Iterator[String] = {
+    new Iterator[String] {
+      override def hasNext: Boolean = buffer.indexOf('\n') >= 0
+
+      override def next(): String = {
+        val index = buffer.indexOf('\n')
+        val ret = buffer.substring(0, index)
+        buffer = buffer.substring(index+1)
+        ret
+      }
+    }
+  }
+}
+
 object TweetStreamerActor {
   val twitterUri = Uri("https://stream.twitter.com/1.1/statuses/filter.json")
 }
 
-class TweetStreamerActor(uri: Uri, producer: ActorRef, query: String) extends Actor with TweetMarshaller {
+class TweetStreamerActor(uri: Uri, producer: ActorRef, query: String) extends Actor with TweetMarshaller with ActorLogging {
   this: TwitterAuthorization =>
   val io = IO(Http)(context.system)
   import scala.concurrent.ExecutionContext.Implicits.global
 
+  var chunkCombiner = new ChunkCombiner()
+
   def receive: Receive = {
     case "filter" =>
-      println(s"Sending query request to $uri")
+      log.info(s"Sending query request to $uri")
       val body = HttpEntity(ContentType(MediaTypes.`application/x-www-form-urlencoded`), s"track=$query")
       val rq = HttpRequest(HttpMethods.POST, uri = uri, entity = body) ~> authorize
       sendTo(io).withResponsesReceivedBy(self)(rq)
     case ChunkedResponseStart(_) =>
-    case MessageChunk(entity, _) => TweetUnmarshaller(entity).fold(_ => (), producer !)
+      chunkCombiner = new ChunkCombiner()
+    case MessageChunk(entity, _) =>
+      val entityString = entity.asString(HttpCharsets.`UTF-8`)
+      chunkCombiner.feed(entityString)
+      chunkCombiner.iterator.foreach { tweetString =>
+        TweetUnmarshaller(tweetString).fold(
+          { (error: DeserializationError) =>
+            log.error("error while parsing tweet {}: {}", error, new String(entity.toByteArray))
+          },
+          { message =>
+            log.info("received tweet: {}", message)
+            producer ! message
+          }
+        )
+      }
     case _ =>
       context.system.scheduler.scheduleOnce(5 seconds) {
         self ! "filter"
