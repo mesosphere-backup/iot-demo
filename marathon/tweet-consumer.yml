@@ -1,0 +1,22 @@
+id:  /demo/tweet-consumer
+cmd: /opt/spark/dist/bin/spark-submit 
+  --master mesos://leader.mesos:5050 
+  --executor-memory 4g 
+  --conf spark.mesos.coarse=true 
+  --conf spark.cores.max=10 
+  --conf spark.mesos.executor.docker.image=brndnmtthws/tweets 
+  --packages org.apache.spark:spark-streaming-kafka-assembly_2.10:1.4.1 
+  --class com.bythebay.pipeline.spark.streaming.StreamingRatings streaming/target/scala-2.10/streaming-assembly-1.0.jar
+env:
+  TWEET_CONSUMER_KAFKA_BROKERS: "broker-0.kafka.mesos:1025,broker-1.kafka.mesos:1025,broker-2.kafka.mesos:1025"
+  TWEET_CONSUMER_KAFKA_TOPIC: "dem-tweets"
+  TWEET_CONSUMER_CASSANDRA_SEEDS: "cassandra-dcos-node.cassandra.dcos.mesos"
+  TWEET_CONSUMER_CASSANDRA_KEYSPACE: "twitter"
+container:
+  type: "DOCKER"
+  docker:
+    image: "brndnmtthws/tweets"
+cpus: 0.5
+mem: 2048
+instances: 1
+ports: []

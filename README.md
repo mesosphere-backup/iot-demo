@@ -1,19 +1,49 @@
 # iot-demo [![Build Status](https://travis-ci.org/mesosphere/iot-demo.svg?branch=master)](https://travis-ci.org/mesosphere/iot-demo)
 
-# iot-demo
 IoT - It's the thing you want! And so here's a full-stack demo.
 
-## Prerequisites
+This demo shows you how to setup a service on DCOS that
 
-- DCOS cluster
+* streams tweets using the twitter stream API to [Kafka](http://kafka.apache.org)
+* processes those streams from Kafka using [Spark](http://spark.apache.org)
+* stores the enriched data into [Cassandra](http://cassandra.apache.org)
+* and make the data queryable easily via SQL by using [Presto](https://prestodb.io)
+
+There are presentations about this demo:
+
+* [Cassandra summit 2015 - Simplifying Streaming Analytics](http://www.slideshare.net/BrendenMatthews/cassandra-summit-2015-simplifying-streaming-analytics)
+  by Brenden Matthews with an emphasis on data processing
+* [Hamburg Mesos Meetup - Deploying your Service on DCOS](https://docs.google.com/presentation/d/1skc6-Hb28oyUX-XCeBaSZuMWVndu2A40TL8HeQKw-Dk/edit#slide=id.ge21c9a11a_0_358)
+  by Peter Kolloch with an emphasis on deployment of non-trivial services
+
+# Create a DCOS cluster and install the CLI
+
+Follow the instructions [here](https://docs.mesosphere.com/install/createcluster/).
+
 - You'll need enough capacity to run all the services, which may require at least 5 worker nodes
 - SSH access to the cluster
 - Internet access from inside the cluster
-- Twitter account with API keys ([see here for details](https://dev.twitter.com/oauth/overview/application-owner-access-tokens))
 
-# Sequence of commands (to run) with the DCOS CLI
+When you open the dashboard, follow the instructions to install the DCOS CLI.
 
-```
+# Install Cassandra and Kafka
+
+You can either execute `./bin/base-install.sh <your DCOS cluster base URL>` or run the commands yourself.
+
+You want to dive in deep and do everything yourself? Then point your DCOS client installation at the correct
+cluster and execute the commands below.
+
+## Configure the DCOS CLI
+
+If you just set up your CLI for the first time, you can probably skip this step.
+
+Use `dcos config set core.dcos_url <your DCOS core URL>`, e.g.
+`dcos config set core.dcos_url "http://peter-22f-elasticl-1ejv8oa4oyqw8-626125644.us-west-2.elb.amazonaws.com"`.
+
+
+## Sequence of commands to run with the DCOS CLI
+
+```bash
 # Start DCOS services:
 dcos package install cassandra
 dcos package install kafka
@@ -24,32 +54,48 @@ dcos kafka update 0..2 --options num.io.threads=16,num.partitions=12
 dcos kafka start 0..2
 # Show Kafka cluster status
 dcos kafka status
-
-# Add tweet producers
-# NOTE: Add twitter API keys first!
-dcos marathon app add marathon/tweet-producer-bieber.json
-dcos marathon app add marathon/tweet-producer-trump.json
-
-# Start Presto:
-dcos marathon group add marathon/presto.json
-
-# Last, run tweet consumer
-dcos marathon app add marathon/tweet-consumer.json
 ```
 
-# Examine those data
+# Adjust the configuration
 
-SSH into one of the masters or worker nodes in the cluster, and try either cqlsh or Presto:
+* Copy `etc/config_template.yml` to `etc/config.yml`
+* Create a Twitter account with API keys ([see here for details](https://dev.twitter.com/oauth/overview/application-owner-access-tokens))
+* Insert your credentials into the configuration file
 
-```
-# Run presto-cli:
-docker run -i -t brndnmtthws/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
+# Install the tweet producers/consumers and presto 
 
-# Run cqlsh:
-docker run -i -t --net=host --entrypoint=/usr/bin/cqlsh spotify/cassandra cassandra-dcos-node.cassandra.dcos.mesos 9160
-```
+Execute `./bin/install.sh`.
+
+## Background
+
+The `install.sh` script uses the `./bin/prepare-config.py` script to convert YAML configuration files into
+ JSON digestible by Marathon.
+ 
+It produces two Marathon groups that are then send to the Marathon REST API for deployment:
+
+* `target/presto.json` for all of presto.
+* `target/demo.json` for the tweet producers and the tweet consumer.
+
+The prepare-config.py supports some special processing instructions inside of your YAML files to
+
+* include other files (`!include`)
+* use configuration values (`!cfg_str`, `!cfg_path`)
+* or to loop over configuration and apply a template (`!map`)
 
 # Execute some SQL queries with Presto
+
+Make sure that your load balancer is configured correctly to work with websockets. For the standard setup of DCOS
+ on AWS you need to change the listener type in the AWS console:
+ 
+* Go to the AWS EC2 console and choose the region that you launched your cluster in.
+* Navigate to "Load Balancers"
+* Search for the "Public Slave" load balancer configuration of your cluster.
+* Use "Actions / Edit Listeners" and configure the protocol for port 80 to TCP instead of HTTP.
+
+Connect to your public node with your browser.
+
+Now you should have a presto shell in your browser. Copy & Paste does not work in all browsers. It worked
+for me in Chrome. Here are some sample queries to run:
 
 ```sql
 -- Count all the tweets
@@ -113,4 +159,16 @@ ON top_retweets.id = all_tweets.id
 GROUP BY top_retweets.id
 ORDER BY retweet_count DESC
 LIMIT 100;
+```
+
+# Use manually started shells to examine the data
+
+SSH into one of the masters or worker nodes in the cluster, and try either cqlsh or Presto:
+
+```
+# Run presto-cli:
+docker run -i -t brndnmtthws/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
+
+# Run cqlsh:
+docker run -i -t --net=host --entrypoint=/usr/bin/cqlsh spotify/cassandra cassandra-dcos-node.cassandra.dcos.mesos 9160
 ```

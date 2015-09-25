@@ -1,0 +1,32 @@
+{
+  "id":"/presto/coordinator",
+  "cmd":"./etc/uuid.bash >> etc/node.properties && cp etc/coordinator-config.properties etc/config.properties && ./bin/launcher run",
+  "instances":1,
+  "cpus":1.0,
+  "mem":8192.0,
+  "ports":[
+    12000
+  ],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "brndnmtthws/presto-server:0.118"
+    }
+  },
+  "requirePorts":true,
+  "backoffSeconds":1,
+  "backoffFactor":1.15,
+  "maxLaunchDelaySeconds":3600,
+  "healthChecks":[
+    {
+    "path":"/v1/query",
+    "protocol":"HTTP",
+    "portIndex":0,
+    "gracePeriodSeconds":10,
+    "intervalSeconds":2,
+    "timeoutSeconds":10,
+    "maxConsecutiveFailures":10,
+    "ignoreHttp1xx":false
+  }
+  ]
+}

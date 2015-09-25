@@ -1,5 +1,7 @@
 package core
 
+import java.util.concurrent.atomic.AtomicLong
+
 import org.slf4j.LoggerFactory
 import spray.httpx.unmarshalling.{DeserializationError, MalformedContent, Unmarshaller, Deserialized}
 import spray.http._
@@ -8,7 +10,7 @@ import spray.client.pipelining._
 import akka.actor.{ActorLogging, ActorRef, Actor}
 import spray.http.HttpRequest
 import domain.{Place, User, Tweet}
-import scala.util.Try
+import scala.util.{Random, Try}
 import spray.can.Http
 import akka.io.IO
 import scala.concurrent.duration._
@@ -110,7 +112,7 @@ class TweetStreamerActor(uri: Uri, producer: ActorRef, query: String) extends Ac
 
   def receive: Receive = {
     case "filter" =>
-      log.info(s"Sending query request to $uri")
+      log.info(s"Sending query request to $uri?track=$query")
       val body = HttpEntity(ContentType(MediaTypes.`application/x-www-form-urlencoded`), s"track=$query")
       val rq = HttpRequest(HttpMethods.POST, uri = uri, entity = body) ~> authorize
       sendTo(io).withResponsesReceivedBy(self)(rq)
@@ -124,7 +126,7 @@ class TweetStreamerActor(uri: Uri, producer: ActorRef, query: String) extends Ac
           { (error: DeserializationError) =>
             log.error("error while parsing tweet {}: {}", error, new String(entity.toByteArray))
           },
-          { message =>
+          { (message: Tweet) =>
             log.info("received tweet: {}", message)
             producer ! message
           }

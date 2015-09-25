@@ -1,5 +1,12 @@
 #!/bin/bash
 
+#
+# Will use docker to build the necessary jar, then extract the jar and add it to
+# a clean image which only contains Java.
+#
+
+set -e
+
 TAG=${1:latest}
 
 echo "========== BUILDING BASE IMAGE ========="
