@@ -1,0 +1,6 @@
+id: "/demo"
+apps:
+  - !include "tweet-consumer.yml"
+groups:
+  - id: "/demo/producer"
+    apps: !map "tweet-producer.yml;producer:tweet_producers"
