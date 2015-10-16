@@ -7,8 +7,8 @@ cat << EOF
 usage: $0 options
 
 IOT Demo Wrapper
-v1.0
-Last Modified: 2015-09-28
+v1.0.1
+Last Modified: 2015-10-16
 Author: Keith McClellan
 
 This script will initialize and execute your IOT Demo
@@ -28,12 +28,14 @@ SAMPLE SYNTAX
 EOF
 }
 
-source variables.conf #pull in variables
-source $DCOS_CLI_PATH/env-setup #add DCOS CLI to $PATH
+source variables.conf 
+source $DCOS_CLI_PATH/env-setup 
 
 #cleanup previous runs
-rm -f $IOT_REPO_LOC/marathon/tweet-producer-bieber-mod.json
-rm -f $IOT_REPO_LOC/marathon/tweet-producer-trump-mod.json
+cp -r $IOT_REPO_LOC/marathon/tweet-producer-bieber.json.bak $IOT_REPO_LOC/marathon/tweet-producer-bieber.json
+cp -r $IOT_REPO_LOC/marathon/tweet-producer-trump.json.bak $IOT_REPO_LOC/marathon/tweet-producer-trump.json
+rm -f $IOT_REPO_LOC/marathon/tweet-producer-bieber.json.bak
+rm -f $IOT_REPO_LOC/marathon/tweet-producer-trump.json.bak
 
 while getopts “hm:v” OPTION
 do
@@ -97,18 +99,10 @@ fi
 
 ## Modify tweet producers
 
-cp $IOT_REPO_LOC/marathon/tweet-producer-bieber.json $IOT_REPO_LOC/marathon/tweet-producer-bieber-mod.json
-cp $IOT_REPO_LOC/marathon/tweet-producer-trump.json $IOT_REPO_LOC/marathon/tweet-producer-trump-mod.json
 
-sed -e '/TWEET_OAUTH_CONSUMER_KEY/ s/\:\"\"/\:\"$TWEET_OAUTH_CONSUMER_KEY\"/' $IOT_REPO_LOC/marathon/tweet-producer-bieber-mod.json
-sed -e '/TWEET_OAUTH_CONSUMER_SECRET/ s/\:\"\"/\:\"$TWEET_OAUTH_CONSUMER_SECRET\"/' $IOT_REPO_LOC/marathon/tweet-producer-bieber-mod.json
-sed -e '/TWEET_OAUTH_TOKEN_KEY/ s/\:\"\"/\:\"$TWEET_OAUTH_TOKEN_KEY\"/' $IOT_REPO_LOC/marathon/tweet-producer-bieber-mod.json
-sed -e '/TWEET_OAUTH_TOKEN_SECRET/ s/\:\"\"/\:\"$TWEET_OAUTH_TOKEN_SECRET\"/' $IOT_REPO_LOC/marathon/tweet-producer-bieber-mod.json
+sed -i .bak "/TWEET_OAUTH_CONSUMER_KEY/ s/\:\"\"/\:\"$TWEET_OAUTH_CONSUMER_KEY\"/;/TWEET_OAUTH_CONSUMER_SECRET/ s/\:\"\"/\:\"$TWEET_OAUTH_CONSUMER_SECRET\"/;/TWEET_OAUTH_TOKEN_KEY/ s/\:\"\"/\:\"$TWEET_OAUTH_TOKEN_KEY\"/;/TWEET_OAUTH_TOKEN_SECRET/ s/\:\"\"/\:\"$TWEET_OAUTH_TOKEN_SECRET\"/" $IOT_REPO_LOC/marathon/tweet-producer-bieber.json
 
-sed -e '/TWEET_OAUTH_CONSUMER_KEY/ s/\:\"\"/\:\"$TWEET_OAUTH_CONSUMER_KEY\"/' $IOT_REPO_LOC/marathon/tweet-producer-trump-mod.json
-sed -e '/TWEET_OAUTH_CONSUMER_SECRET/ s/\:\"\"/\:\"$TWEET_OAUTH_CONSUMER_SECRET\"/' $IOT_REPO_LOC/marathon/tweet-producer-trump-mod.json
-sed -e '/TWEET_OAUTH_TOKEN_KEY/ s/\:\"\"/\:\"$TWEET_OAUTH_TOKEN_KEY\"/' $IOT_REPO_LOC/marathon/tweet-producer-trump-mod.json
-sed -e '/TWEET_OAUTH_TOKEN_SECRET/ s/\:\"\"/\:\"$TWEET_OAUTH_TOKEN_SECRET\"/' $IOT_REPO_LOC/marathon/tweet-producer-trump-mod.json
+sed -i .bak "/TWEET_OAUTH_CONSUMER_KEY/ s/\:\"\"/\:\"$TWEET_OAUTH_CONSUMER_KEY\"/;/TWEET_OAUTH_CONSUMER_SECRET/ s/\:\"\"/\:\"$TWEET_OAUTH_CONSUMER_SECRET\"/;/TWEET_OAUTH_TOKEN_KEY/ s/\:\"\"/\:\"$TWEET_OAUTH_TOKEN_KEY\"/;/TWEET_OAUTH_TOKEN_SECRET/ s/\:\"\"/\:\"$TWEET_OAUTH_TOKEN_SECRET\"/" $IOT_REPO_LOC/marathon/tweet-producer-trump.json
 
 ### BEGIN DEMO ###
 
@@ -149,12 +143,15 @@ dcos marathon app add marathon/tweet-producer-bieber.json
 echo "dcos marathon app add marathon/tweet-producer-trump.json"
 dcos marathon app add marathon/tweet-producer-trump.json
 
-echo "Tweets are now queuing up in Kafka, ready to start Tweet consumer (Spark) - Press [Enter] to Continue when Cassandra is Healthy"
+echo "Tweets are now queuing up in Kafka, ready to start Presto - Press [Enter] to Continue when Cassandra is Healthy"
 read
 
 # Start Presto:
 echo "dcos marathon group add marathon/presto.json"
 dcos marathon group add marathon/presto.json
+
+echo "Wait for Presto to launch (check Marathon UI) and then launch to Tweet consumer - Press [Enter] to Continue when Presto has launched"
+read
 
 # Last, run tweet consumer
 echo "dcos marathon app add marathon/tweet-consumer.json"
