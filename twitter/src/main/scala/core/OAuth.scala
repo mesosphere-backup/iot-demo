@@ -2,6 +2,7 @@ package core
 
 import javax.crypto
 import java.nio.charset.Charset
+import org.slf4j.LoggerFactory
 import spray.http.{HttpEntity, MediaTypes, ContentType, HttpRequest}
 import spray.http.HttpHeaders.RawHeader
 import org.parboiled.common.Base64
@@ -9,6 +10,8 @@ import scala.collection.immutable.TreeMap
 import java.net.URLEncoder
 
 object OAuth {
+  private[this] val log = LoggerFactory.getLogger(getClass)
+
   case class Consumer(key: String, secret: String)
   case class Token(value: String, secret: String)
 
@@ -26,7 +29,8 @@ object OAuth {
 
       // pick out x-www-form-urlencoded body
       val (requestParams, newEntity) = httpRequest.entity match {
-        case HttpEntity.NonEmpty(ContentType(MediaTypes.`application/x-www-form-urlencoded`, _), data) =>
+        case request@HttpEntity.NonEmpty(ContentType(MediaTypes.`application/x-www-form-urlencoded`, _), data) =>
+          log.info("request {}", request)
           val params = data.asString.split("&")
           val pairs = params.map { param =>
             val p = param.split("=")

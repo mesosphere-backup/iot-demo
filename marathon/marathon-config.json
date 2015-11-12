@@ -1,0 +1,8 @@
+{
+  "marathon": {
+    "framework-name": "marathon011",
+    "default-accepted-resource-roles": "'*'",
+    "mesos-role": "slave_public",
+    "zk": "zk://master.mesos:2181/marathon011"
+  }
+}

@@ -32,6 +32,8 @@ lazy val streamingDeps = Seq(
 )
 
 lazy val twitterDeps = Seq(
+//  "ch.qos.logback"      %  "logback-classic"      % "1.0.7",
+  "com.typesafe"        %% "scalalogging-slf4j"   % "1.0.1",
   "com.typesafe.akka"      %% "akka-actor"            % akkaVersion,
   "com.typesafe.akka"      %% "akka-slf4j"            % akkaVersion,
   "io.spray"               %% "spray-can"             % sprayVersion,

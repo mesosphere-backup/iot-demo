@@ -1,5 +1,7 @@
 *.class
 *.log
+bin/env.sh
+etc/config.yml
 
 # sbt specific
 .cache
