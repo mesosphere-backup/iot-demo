@@ -49,11 +49,11 @@ dcos package install cassandra
 dcos package install kafka
 
 # When Kafka is healthy, add brokers
-dcos kafka add 0..2
-dcos kafka update 0..2 --options num.io.threads=16,num.partitions=12
-dcos kafka start 0..2
+dcos kafka broker add 0..2
+dcos kafka broker update 0..2 --options num.io.threads=16,num.partitions=12
+dcos kafka broker start 0..2
 # Show Kafka cluster status
-dcos kafka status
+dcos kafka broker list
 ```
 
 # Adjust the configuration
