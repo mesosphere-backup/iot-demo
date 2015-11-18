@@ -8,4 +8,6 @@ env:
   TWEET_OAUTH_TOKEN_SECRET: ""
   TWEET_PRODUCER_KAFKA_BROKERS: "broker-0.kafka.mesos:1025,broker-1.kafka.mesos:1025,broker-2.kafka.mesos:1025"
   TWEET_PRODUCER_KAFKA_TOPIC: "dem-tweets"
-tweet_producer_version: "v8"
+tweet_producer_version: "latest"
+tweet_consumer_version: "latest"
+presto_version: "latest"

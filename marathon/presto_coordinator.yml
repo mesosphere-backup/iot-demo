@@ -10,7 +10,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "brndnmtthws/presto-server:0.118"
+      "image": !cfg_str "mesosphere/presto-server:{{presto_version}}"
     }
   },
   "requirePorts":true,

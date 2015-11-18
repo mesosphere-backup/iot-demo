@@ -4,7 +4,7 @@
 # Base setup using DCOS.
 #
 # Installs kafka and cassandra.
-# 
+#
 
 # Make sure that your dcos command line is configured correctly for the cluster!
 
@@ -29,11 +29,11 @@ dcos package install --yes kafka
 echo "Start DCOS services: done"
 
 echo "Try to add brokers to kafka and start them (initial errors expected): "
-while ! dcos kafka broker add 0..2 --options num.io.threads=16,num.partitions=12 >/dev/null 2>&1; do
+while ! dcos kafka broker add 0..5 --options num.io.threads=16,num.partitions=12,default.replication.factor=3 >/dev/null 2>&1; do
     echo "Retrying in 3s"
     sleep 3
 done
-dcos kafka broker start 0..2
+dcos kafka broker start 0..5
 echo "Try to add brokers to kafka and start them: done"
 echo "Kafka status: "
 dcos kafka broker list
