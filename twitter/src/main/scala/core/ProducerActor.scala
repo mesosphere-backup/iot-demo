@@ -2,13 +2,13 @@ package core
 
 import java.util.Properties
 import java.util.concurrent.atomic.AtomicLong
-import akka.event.Logging
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig}
-import akka.actor._
-import org.apache.kafka.clients.producer.{ProducerRecord,Callback,RecordMetadata}
-import domain.{Place, User, Tweet}
-import scala.concurrent.duration._
 
+import akka.actor._
+import akka.event.Logging
+import domain.{Place, Tweet, User}
+import org.apache.kafka.clients.producer.{Callback, KafkaProducer, ProducerConfig, ProducerRecord, RecordMetadata}
+
+import scala.concurrent.duration._
 import scala.util.Random
 
 object RandomTweet {
@@ -122,7 +122,7 @@ class ProducerActor(keywords: String) extends Actor {
 
   def receive: Receive = {
     case tweet: Tweet =>
-      val record = new ProducerRecord[String,String](kafkaTopic, tweet.json)
+      val record = new ProducerRecord[String, String](kafkaTopic, tweet.json)
       producer.send(record, new Callback {
         override def onCompletion(result: RecordMetadata, exception: Exception) {
           if (exception != null) {

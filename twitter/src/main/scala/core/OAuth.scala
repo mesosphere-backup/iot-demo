@@ -1,19 +1,18 @@
 package core
 
-import javax.crypto
-import java.nio.charset.Charset
-import org.slf4j.LoggerFactory
-import spray.http.{HttpEntity, MediaTypes, ContentType, HttpRequest}
-import spray.http.HttpHeaders.RawHeader
-import org.parboiled.common.Base64
-import scala.collection.immutable.TreeMap
 import java.net.URLEncoder
+import java.nio.charset.Charset
+import javax.crypto
+
+import org.parboiled.common.Base64
+import org.slf4j.LoggerFactory
+import spray.http.HttpHeaders.RawHeader
+import spray.http.{ContentType, HttpEntity, HttpRequest, MediaTypes}
+
+import scala.collection.immutable.TreeMap
 
 object OAuth {
   private[this] val log = LoggerFactory.getLogger(getClass)
-
-  case class Consumer(key: String, secret: String)
-  case class Token(value: String, secret: String)
 
   def oAuthAuthorizer(consumer: Consumer, token: Token): HttpRequest => HttpRequest = {
     // construct the key and cryptographic entity
@@ -36,7 +35,7 @@ object OAuth {
             val p = param.split("=")
             p(0) -> percentEncode(p(1))
           }
-          (pairs.toMap, HttpEntity(ContentType(MediaTypes.`application/x-www-form-urlencoded`), "%s=%s" format (pairs(0)._1, pairs(0)._2)))
+          (pairs.toMap, HttpEntity(ContentType(MediaTypes.`application/x-www-form-urlencoded`), "%s=%s" format(pairs(0)._1, pairs(0)._2)))
         case e => (Map(), e)
       }
 
@@ -60,15 +59,21 @@ object OAuth {
       val sig = Base64.rfc2045().encodeToString(mac.doFinal(bytes(signatureBaseString)), false)
       mac.reset()
 
-      val oauth = TreeMap[String, String]() ++ (oauthParams + ("oauth_signature" -> percentEncode(sig))) map { case (k, v) => "%s=\"%s\"" format (k, v) } mkString ", "
+      val oauth = TreeMap[String, String]() ++ (oauthParams + ("oauth_signature" -> percentEncode(sig))) map { case (k, v) => "%s=\"%s\"" format(k, v) } mkString ", "
 
       // return the signed request
       httpRequest.withHeaders(List(RawHeader("Authorization", "OAuth " + oauth))).withEntity(newEntity)
     }
   }
 
-  private def percentEncode(str: String): String = URLEncoder.encode(str, "UTF-8") replace ("+", "%20") replace ("%7E", "~")
+  private def percentEncode(str: String): String = URLEncoder.encode(str, "UTF-8") replace("+", "%20") replace("%7E", "~")
+
   private def percentEncode(s: Seq[String]): String = s map percentEncode mkString "&"
+
   private def bytes(str: String) = str.getBytes(Charset.forName("UTF-8"))
+
+  case class Consumer(key: String, secret: String)
+
+  case class Token(value: String, secret: String)
 
 }
