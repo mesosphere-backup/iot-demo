@@ -1,5 +1,0 @@
-FROM java:openjdk-8-jdk
-
-ADD twitter-assembly-1.0.jar twitter-assembly-1.0.jar
-
-ENTRYPOINT ["/usr/bin/java", "-Xmx2000m", "-Dakka.loglevel=DEBUG", "-Dakka.actor.debug.receive=true", "-Dakka.actor.debug.autoreceive=true", "-Dakka.actor.debug.lifecycle=true", "-jar", "/twitter-assembly-1.0.jar" ]

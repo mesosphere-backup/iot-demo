@@ -1,5 +1,5 @@
 id: !cfg_str "/demo/producer/{{producer.id}}"
-args: !cfg_path "producer.keywords"
+cmd: !cfg_str /usr/bin/java -Xmx2000m -Dakka.loglevel=DEBUG -Dakka.actor.debug.receive=true -Dakka.actor.debug.autoreceive=true -Dakka.actor.debug.lifecycle=true -jar /twitter-assembly-1.0.jar {{producer.keywords}}
 env: !cfg_path "env"
 container:
   type: "DOCKER"
