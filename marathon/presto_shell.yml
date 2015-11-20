@@ -7,7 +7,7 @@ requirePorts: true
 dependencies:
   - "/presto/coordinator"
 uris:
-  - "https://github.com/yudai/gotty/releases/download/pre-release/linux_amd64.tar.gz"
+  - "https://github.com/yudai/gotty/releases/download/v0.0.12/gotty_linux_amd64.tar.gz"
 args:
   - "-c"
   - >
