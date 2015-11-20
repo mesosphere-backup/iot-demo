@@ -4,7 +4,7 @@ env: !cfg_path "env"
 container:
   type: "DOCKER"
   docker:
-    image: !cfg_str "pkolloch/tweet-producer:{{tweet_producer_version}}"
+    image: !cfg_str "mesosphere/iot-demo:{{tweet_producer_version}}"
 cpus: 0.5
 mem: 2048
 instances: 1

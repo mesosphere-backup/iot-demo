@@ -49,9 +49,9 @@ dcos package install cassandra
 dcos package install kafka
 
 # When Kafka is healthy, add brokers
-dcos kafka broker add 0..2
-dcos kafka broker update 0..2 --options num.io.threads=16,num.partitions=12
-dcos kafka broker start 0..2
+dcos kafka broker add 0..5
+dcos kafka broker update 0..5 --options num.io.threads=16,num.partitions=12,default.replication.factor=3
+dcos kafka broker start 0..5
 # Show Kafka cluster status
 dcos kafka broker list
 ```
@@ -167,7 +167,7 @@ SSH into one of the masters or worker nodes in the cluster, and try either cqlsh
 
 ```
 # Run presto-cli:
-docker run -i -t brndnmtthws/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
+docker run -i -t mesosphere/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
 
 # Run cqlsh:
 docker run -i -t --net=host --entrypoint=/usr/bin/cqlsh spotify/cassandra cassandra-dcos-node.cassandra.dcos.mesos 9160

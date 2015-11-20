@@ -29,7 +29,7 @@ upgradeStrategy:
 container:
   type: DOCKER
   docker:
-    image: brndnmtthws/presto-cli
+    image: !cfg_str "mesosphere/presto-cli:{{presto_version}}"
     network: HOST
     parameters:
       - key: entrypoint
