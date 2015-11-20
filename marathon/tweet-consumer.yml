@@ -4,9 +4,9 @@ cmd: /opt/spark/dist/bin/spark-submit
   --executor-memory 4g
   --conf spark.mesos.coarse=true
   --conf spark.cores.max=10
-  --conf spark.mesos.executor.docker.image=brndnmtthws/tweets
+  --conf spark.mesos.executor.docker.image=mesosphere/iot-demo
   --packages org.apache.spark:spark-streaming-kafka-assembly_2.10:1.4.1
-  --class com.bythebay.pipeline.spark.streaming.StreamingRatings streaming/target/scala-2.10/streaming-assembly-1.0.jar
+  --class com.bythebay.pipeline.spark.streaming.StreamingRatings /streaming-assembly-1.0.jar
 env:
   TWEET_CONSUMER_KAFKA_BROKERS: "broker-0.kafka.mesos:1025,broker-1.kafka.mesos:1025,broker-2.kafka.mesos:1025"
   TWEET_CONSUMER_KAFKA_TOPIC: "dem-tweets"

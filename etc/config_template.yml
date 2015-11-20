@@ -1,6 +1,6 @@
 tweet_producers:
   - id: trump
-    keywords: [donald trump]
+    keywords: donald trump
 env:
   TWEET_OAUTH_CONSUMER_KEY: ""
   TWEET_OAUTH_CONSUMER_SECRET: ""

@@ -18,4 +18,5 @@ RUN cd /iot-demo && sbt -Dsbt.log.format=false update
 # Build the assembly
 COPY twitter /iot-demo/twitter
 COPY streaming /iot-demo/streaming
+COPY rt-polaritydata /
 RUN cd /iot-demo && sbt -Dsbt.log.format=false assembly && cp -v */target/scala-2.10/*.jar .. && rm -rf /iot-demo

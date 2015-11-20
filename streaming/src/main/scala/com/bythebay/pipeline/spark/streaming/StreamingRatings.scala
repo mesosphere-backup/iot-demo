@@ -49,9 +49,9 @@ object StreamingRatings {
     val sc = SparkContext.getOrCreate(conf)
 
     val htf = new HashingTF(10000)
-    val positiveData = sc.textFile("./rt-polaritydata/rt-polarity.pos.gz")
+    val positiveData = sc.textFile("/rt-polaritydata/rt-polarity.pos.gz")
       .map { text => new LabeledPoint(1, htf.transform(text.split(" ")))}
-    val negativeData = sc.textFile("./rt-polaritydata/rt-polarity.neg.gz")
+    val negativeData = sc.textFile("/rt-polaritydata/rt-polarity.neg.gz")
       .map { text => new LabeledPoint(0, htf.transform(text.split(" ")))}
     val training = positiveData.union(negativeData)
     val model = NaiveBayes.train(training, lambda = 1.0, modelType = "multinomial")
