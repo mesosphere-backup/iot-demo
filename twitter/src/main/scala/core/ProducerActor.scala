@@ -110,9 +110,6 @@ class ProducerActor(keywords: String) extends Actor {
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
 
     producer = new KafkaProducer[String, String](props)
-
-    import context.dispatcher
-    context.system.scheduler.schedule(1.second, 1.second)(self ! RandomTweet(keywords))
   }
 
   override def postStop(): Unit = {
@@ -134,3 +131,4 @@ class ProducerActor(keywords: String) extends Actor {
       })
   }
 }
+
