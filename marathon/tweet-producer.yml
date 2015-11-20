@@ -5,6 +5,7 @@ container:
   type: "DOCKER"
   docker:
     image: !cfg_str "mesosphere/iot-demo:{{tweet_producer_version}}"
+    forcePullImage: true
 cpus: 0.5
 mem: 2048
 instances: 1
