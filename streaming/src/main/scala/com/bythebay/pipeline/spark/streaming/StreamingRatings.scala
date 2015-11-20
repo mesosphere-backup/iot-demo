@@ -1,37 +1,21 @@
 package com.bythebay.pipeline.spark.streaming
 
 import com.datastax.driver.core.Cluster
-import org.apache.spark.mllib.classification.NaiveBayes
-import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.streaming.kafka.KafkaUtils
-import org.apache.spark.streaming.Seconds
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.SparkConf
-import org.apache.spark.mllib.feature.HashingTF
 import kafka.serializer.StringDecoder
-import org.apache.spark.sql.SaveMode
+import org.apache.spark.mllib.classification.NaiveBayes
+import org.apache.spark.mllib.feature.HashingTF
+import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.Time
+import org.apache.spark.sql.{SQLContext, SaveMode}
+import org.apache.spark.streaming.kafka.KafkaUtils
+import org.apache.spark.streaming.{Seconds, StreamingContext, Time}
+import org.apache.spark.{SparkConf, SparkContext}
 import org.slf4j.LoggerFactory
-import spray.json.{JsonParser, JsString}
+import spray.json.{JsString, JsonParser}
 
 case class Tweet(tweet: String, score: Double, batchtime: Long, tweet_text: String)
 
 object StreamingRatings {
-  def initializeCassandra(cassandraContactPoints: String, cassandraKeyspace: String) {
-    // Initialize the C* keyspace
-    val cluster = Cluster.builder()
-      .addContactPoints(cassandraContactPoints)
-      .build()
-    val session = cluster.connect()
-    session.execute(s"CREATE KEYSPACE IF NOT EXISTS $cassandraKeyspace WITH REPLICATION = { 'class': 'SimpleStrategy', 'replication_factor':1}")
-    session.execute(s"USE $cassandraKeyspace")
-    session.execute("CREATE TABLE IF NOT EXISTS tweets (tweet text, score double, batchTime bigint, tweet_text text, , PRIMARY KEY(tweet))")
-    session.close()
-  }
-
   def main(args: Array[String]) {
     val cassandraContactPoints = sys.env("TWEET_CONSUMER_CASSANDRA_SEEDS")
     val cassandraKeyspace = sys.env("TWEET_CONSUMER_CASSANDRA_KEYSPACE")
@@ -50,9 +34,9 @@ object StreamingRatings {
 
     val htf = new HashingTF(10000)
     val positiveData = sc.textFile("/rt-polaritydata/rt-polarity.pos.gz")
-      .map { text => new LabeledPoint(1, htf.transform(text.split(" ")))}
+      .map { text => new LabeledPoint(1, htf.transform(text.split(" "))) }
     val negativeData = sc.textFile("/rt-polaritydata/rt-polarity.neg.gz")
-      .map { text => new LabeledPoint(0, htf.transform(text.split(" ")))}
+      .map { text => new LabeledPoint(0, htf.transform(text.split(" "))) }
     val training = positiveData.union(negativeData)
     val model = NaiveBayes.train(training, lambda = 1.0, modelType = "multinomial")
 
@@ -101,5 +85,17 @@ object StreamingRatings {
 
     ssc.start()
     ssc.awaitTermination()
+  }
+
+  def initializeCassandra(cassandraContactPoints: String, cassandraKeyspace: String) {
+    // Initialize the C* keyspace
+    val cluster = Cluster.builder()
+      .addContactPoints(cassandraContactPoints)
+      .build()
+    val session = cluster.connect()
+    session.execute(s"CREATE KEYSPACE IF NOT EXISTS $cassandraKeyspace WITH REPLICATION = { 'class': 'SimpleStrategy', 'replication_factor':1}")
+    session.execute(s"USE $cassandraKeyspace")
+    session.execute("CREATE TABLE IF NOT EXISTS tweets (tweet text, score double, batchTime bigint, tweet_text text, , PRIMARY KEY(tweet))")
+    session.close()
   }
 }

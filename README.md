@@ -43,7 +43,7 @@ Use `dcos config set core.dcos_url <your DCOS core URL>`, e.g.
 
 ## Sequence of commands to run with the DCOS CLI
 
-```bash
+```console
 # Start DCOS services:
 dcos package install cassandra
 dcos package install kafka
@@ -165,7 +165,7 @@ LIMIT 100;
 
 SSH into one of the masters or worker nodes in the cluster, and try either cqlsh or Presto:
 
-```
+```console
 # Run presto-cli:
 docker run -i -t mesosphere/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
 
