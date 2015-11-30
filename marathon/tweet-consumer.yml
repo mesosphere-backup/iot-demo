@@ -1,5 +1,5 @@
 id:  /demo/tweet-consumer
-cmd: /opt/spark/dist/bin/spark-submit
+cmd: !cfg_str /opt/spark/dist/bin/spark-submit
   --master mesos://leader.mesos:5050
   --executor-memory 4g
   --conf spark.mesos.coarse=true
