@@ -1,4 +1,4 @@
-FROM mesosphere/spark:1.4.1-hdfs
+FROM mesosphere/spark
 
 # Infrastructure, install sbt
 RUN echo "deb http://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list
