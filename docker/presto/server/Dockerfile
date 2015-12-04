@@ -1,10 +1,11 @@
 FROM java:8-jre
 
-RUN apt-get update
-RUN apt-get install -yf python
-
 ADD https://downloads.mesosphere.io/presto/presto-server-0.118.tar.gz presto-server-0.118.tar.gz
-RUN tar xf presto-server-0.118.tar.gz
-RUN rm presto-server-0.118.tar.gz
+
+RUN apt-get update && \
+  apt-get install -yf python && \
+  apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+  tar xf presto-server-0.118.tar.gz && \
+  rm presto-server-0.118.tar.gz
 
 WORKDIR presto-server-0.118
