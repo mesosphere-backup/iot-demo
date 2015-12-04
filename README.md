@@ -11,7 +11,17 @@ IoT - It's the thing you want! And so here's a full-stack demo.
 - Internet access from inside the cluster
 - Twitter account with API keys ([see here for details](https://dev.twitter.com/oauth/overview/application-owner-access-tokens))
 
-# Sequence of commands (to run) with the DCOS CLI
+
+- Update the variables.conf with your twitter key info
+```
+# Start Demo
+./iot-demo-launcher.sh -m [Master IP]
+Follow on screen prompts
+```
+Best practice is to use the "split full screen" mode in OSX 10.11 so you can show both the console and the GUI at the same time.  Long press on the green circle in the upper left hand corner of one of the two windows, select a side, and then add the other app to the other side.  You can drag the barrier in the middle to one side or the other to make the gui bigger.
+
+
+# Sequence of commands (to run manually) with the DCOS CLI
 
 ```
 # Start DCOS services:
