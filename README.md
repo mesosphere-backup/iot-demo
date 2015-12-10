@@ -105,7 +105,7 @@ SELECT count(1) FROM tweets;
 SELECT substr(tweet_text, 1, 40) AS tweet_text, batchtime, score FROM tweets ORDER BY batchtime DESC LIMIT 20;
 
 -- Count tweets by score
-SELECT count(1) AS tweet_count, score FROM tweets GROUP BY score ORDER BY score;
+SELECT count(1) AS tweet_count, query, score FROM tweets GROUP BY score, query ORDER BY query, score;
 
 -- Count of tweets by language
 SELECT json_extract_scalar(tweet, '$.lang') AS languages, count(*) AS count FROM tweets GROUP BY json_extract_scalar(tweet, '$.lang') ORDER BY count DESC;

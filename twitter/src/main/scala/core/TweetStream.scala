@@ -38,14 +38,15 @@ trait TweetMarshaller {
 
   object TweetUnmarshaller {
 
-    def apply(entityString: String): Deserialized[Tweet] = {
+    def apply(entityString: String, query: String): Deserialized[Tweet] = {
       Try {
         val json = JsonParser(entityString).asJsObject
         (json.fields.get("id_str"), json.fields.get("text"), json.fields.get("place"), json.fields.get("user")) match {
           case (Some(JsString(id)), Some(JsString(text)), Some(place), Some(user: JsObject)) =>
             val x = mkUser(user).fold(x => Left(x), { user =>
               mkPlace(place).fold(x => Left(x), { place =>
-                Right(Tweet(id, user, text, place, entityString))
+                val jsonString = json.copy(Map("query" -> JsString(query)) ++ json.fields).compactPrint
+                Right(Tweet(id, user, text, place, jsonString))
               })
             })
             x
@@ -123,7 +124,7 @@ class TweetStreamerActor(uri: Uri, producer: ActorRef, query: String) extends Ac
       val entityString = entity.asString(HttpCharsets.`UTF-8`)
       chunkCombiner.feed(entityString)
       chunkCombiner.iterator.foreach { tweetString =>
-        TweetUnmarshaller(tweetString).fold(
+        TweetUnmarshaller(tweetString, query).fold(
           { (error: DeserializationError) =>
             log.error("error while parsing tweet {}: {}", error, new String(entity.toByteArray))
           }, { (message: Tweet) =>

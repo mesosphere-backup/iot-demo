@@ -13,7 +13,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 import org.slf4j.LoggerFactory
 import spray.json.{JsString, JsonParser}
 
-case class Tweet(tweet: String, score: Double, batchtime: Long, tweet_text: String)
+case class Tweet(tweet: String, score: Double, batchtime: Long, tweet_text: String, query: String)
 
 object StreamingRatings {
   def main(args: Array[String]) {
@@ -33,9 +33,9 @@ object StreamingRatings {
     val sc = SparkContext.getOrCreate(conf)
 
     val htf = new HashingTF(10000)
-    val positiveData = sc.textFile("/rt-polaritydata/rt-polarity.pos.gz")
+    val positiveData = sc.textFile("/tweet-corpus/positive.gz")
       .map { text => new LabeledPoint(1, htf.transform(text.split(" "))) }
-    val negativeData = sc.textFile("/rt-polaritydata/rt-polarity.neg.gz")
+    val negativeData = sc.textFile("/tweet-corpus/negative.gz")
       .map { text => new LabeledPoint(0, htf.transform(text.split(" "))) }
     val training = positiveData.union(negativeData)
     val model = NaiveBayes.train(training, lambda = 1.0, modelType = "multinomial")
@@ -63,18 +63,19 @@ object StreamingRatings {
         // convert each RDD from the batch into a DataFrame
         val df = message.map(_._2).map(tweet => {
           val json = JsonParser(tweet).asJsObject
-          json.fields.get("text") match {
-            case Some(JsString(text)) =>
-              (tweet, text, new LabeledPoint(0, htf.transform(text.toLowerCase.split(" "))))
-            case _ => (tweet, "", new LabeledPoint(0, htf.transform("".split(""))))
+          (json.fields.get("text"), json.fields.get("query")) match {
+            case (Some(JsString(text)), Some(JsString(query))) =>
+              (tweet, text, new LabeledPoint(0, htf.transform(text.toLowerCase.split(" "))), query)
+            case _ => (tweet, "", new LabeledPoint(0, htf.transform("".split(""))), "")
           }
         }).map(t => {
           val tweet = t._1
           val text = t._2
           val point = t._3
           val score = model.predict(point.features)
-          Tweet(tweet, score, batchTime.milliseconds, text)
-        }).toDF("tweet", "score", "batchtime", "tweet_text")
+          val query = t._4
+          Tweet(tweet, score, batchTime.milliseconds, text, query)
+        }).toDF("tweet", "score", "batchtime", "tweet_text", "query")
 
         df.write.format("org.apache.spark.sql.cassandra")
           .mode(SaveMode.Append)
@@ -95,7 +96,7 @@ object StreamingRatings {
     val session = cluster.connect()
     session.execute(s"CREATE KEYSPACE IF NOT EXISTS $cassandraKeyspace WITH REPLICATION = { 'class': 'SimpleStrategy', 'replication_factor':1}")
     session.execute(s"USE $cassandraKeyspace")
-    session.execute("CREATE TABLE IF NOT EXISTS tweets (tweet text, score double, batchTime bigint, tweet_text text, , PRIMARY KEY(tweet))")
+    session.execute("CREATE TABLE IF NOT EXISTS tweets (tweet text, score double, batchTime bigint, tweet_text text, query text, PRIMARY KEY(tweet))")
     session.close()
   }
 }
