@@ -66,6 +66,14 @@ dcos kafka broker list
 
 Execute `./bin/install.sh`.
 
+NOTE: This calls a python 3 script with yaml and jinja modules. You can use pip and homebrew to update your system.
+
+`brew install python3`
+
+`pip3 install pyyaml`
+
+`pip3 install jinja2`
+
 ## Background
 
 The `install.sh` script uses the `./bin/prepare-config.py` script to convert YAML configuration files into
