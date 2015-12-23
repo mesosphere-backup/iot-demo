@@ -4,6 +4,7 @@ cmd: !cfg_str /opt/spark/dist/bin/spark-submit
   --executor-memory 4g
   --conf spark.mesos.coarse=true
   --conf spark.cores.max=10
+  --conf spark.ui.port=$PORT0
   --conf spark.mesos.executor.docker.image=mesosphere/iot-demo:{{tweet_consumer_version}}
   --packages org.apache.spark:spark-streaming-kafka-assembly_2.10:1.4.1
   --class com.bythebay.pipeline.spark.streaming.StreamingRatings /streaming-assembly-1.0.jar
@@ -20,4 +21,13 @@ container:
 cpus: 0.5
 mem: 2048
 instances: 1
-ports: []
+ports: [0]
+healthChecks:
+  -
+    "portIndex": 0
+    "protocol": "HTTP"
+    "path": "/"
+    "gracePeriodSeconds": 15
+    "intervalSeconds": 60
+    "timeoutSeconds": 10
+    "maxConsecutiveFailures": 3
