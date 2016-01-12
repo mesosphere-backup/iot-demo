@@ -34,9 +34,9 @@ object StreamingRatings {
 
     val htf = new HashingTF(10000)
     val positiveData = sc.textFile("/tweet-corpus/positive.gz")
-      .map { text => new LabeledPoint(1, htf.transform(text.split(" "))) }
+      .map { text => new LabeledPoint(1, htf.transform(text.toLowerCase.split(" "))) }
     val negativeData = sc.textFile("/tweet-corpus/negative.gz")
-      .map { text => new LabeledPoint(0, htf.transform(text.split(" "))) }
+      .map { text => new LabeledPoint(0, htf.transform(text.toLowerCase.split(" "))) }
     val training = positiveData.union(negativeData)
     val model = NaiveBayes.train(training, lambda = 1.0, modelType = "multinomial")
 
