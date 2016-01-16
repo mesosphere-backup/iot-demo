@@ -14,7 +14,7 @@ lazy val twitter = (project in file("twitter"))
   .settings(libraryDependencies ++= twitterDeps)
 
 val akkaVersion = "2.3.11"
-val sparkVersion = "1.4.1"
+val sparkVersion = "1.6.0"
 val sparkCassandraConnectorVersion = "1.4.0-M3"
 val kafkaVersion = "0.8.2.1"
 val scalaTestVersion = "2.2.4"
