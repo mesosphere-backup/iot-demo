@@ -6,7 +6,7 @@ cmd: !cfg_str /opt/spark/dist/bin/spark-submit
   --conf spark.cores.max=10
   --conf spark.ui.port=$PORT0
   --conf spark.mesos.executor.docker.image=mesosphere/iot-demo:{{tweet_consumer_version}}
-  --packages org.apache.spark:spark-streaming-kafka-assembly_2.10:1.4.1
+  --packages org.apache.spark:spark-streaming-kafka-assembly_2.10:1.6.0
   --class com.bythebay.pipeline.spark.streaming.StreamingRatings /streaming-assembly-1.0.jar
 env:
   TWEET_CONSUMER_KAFKA_BROKERS: "broker-0.kafka.mesos:1025,broker-1.kafka.mesos:1025,broker-2.kafka.mesos:1025"
