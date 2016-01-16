@@ -22,4 +22,4 @@ RUN cd /iot-demo && sbt -Dsbt.log.format=false assembly && \
   rm -rf /iot-demo ~/.ivy2 && \
   apt-get remove --auto-remove -yf sbt && \
   apt-get clean && \
-  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /opt/spark/dist/hdfs-site.xml
+  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /etc/hadoop

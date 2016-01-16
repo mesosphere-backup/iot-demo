@@ -38,7 +38,7 @@ object StreamingRatings {
     val negativeData = sc.textFile("/tweet-corpus/negative.gz")
       .map { text => new LabeledPoint(0, htf.transform(text.toLowerCase.split(" "))) }
     val training = positiveData.union(negativeData)
-    val model = NaiveBayes.train(training, lambda = 1.0, modelType = "bernoulli")
+    val model = NaiveBayes.train(training, lambda = 1.0, modelType = "multinomial")
 
     def createStreamingContext(): StreamingContext = {
       @transient val newSsc = new StreamingContext(sc, Seconds(1))
