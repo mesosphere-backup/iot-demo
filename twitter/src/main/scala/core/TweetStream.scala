@@ -10,7 +10,7 @@ import spray.httpx.unmarshalling.{DeserializationError, Deserialized, MalformedC
 import spray.json._
 
 import scala.concurrent.duration._
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 
 trait TwitterAuthorization {
@@ -107,10 +107,17 @@ object TweetStreamerActor {
 class TweetStreamerActor(uri: Uri, producer: ActorRef, query: String) extends Actor with TweetMarshaller with ActorLogging {
   this: TwitterAuthorization =>
   val io = IO(Http)(context.system)
+  var backoff = 5
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   var chunkCombiner = new ChunkCombiner()
+
+  def reschedule = {
+    context.system.scheduler.scheduleOnce(backoff seconds) {
+      self ! "filter"
+    }
+  }
 
   def receive: Receive = {
     case "filter" =>
@@ -118,7 +125,14 @@ class TweetStreamerActor(uri: Uri, producer: ActorRef, query: String) extends Ac
       val body = HttpEntity(ContentType(MediaTypes.`application/x-www-form-urlencoded`), s"track=$query")
       val rq = HttpRequest(HttpMethods.POST, uri = uri, entity = body) ~> authorize
       sendTo(io).withResponsesReceivedBy(self)(rq)
-    case ChunkedResponseStart(_) =>
+    case ChunkedResponseStart(response) =>
+      log.info("Response status={}", response.status.value)
+      if (response.status.isSuccess) {
+        backoff = 5
+      } else {
+        backoff = backoff * 2
+        log.error("Request failed, backoff={} {}", backoff, response)
+      }
       chunkCombiner = new ChunkCombiner()
     case MessageChunk(entity, _) =>
       val entityString = entity.asString(HttpCharsets.`UTF-8`)
@@ -134,8 +148,6 @@ class TweetStreamerActor(uri: Uri, producer: ActorRef, query: String) extends Ac
         )
       }
     case _ =>
-      context.system.scheduler.scheduleOnce(5 seconds) {
-        self ! "filter"
-      }
+      reschedule
   }
 }
