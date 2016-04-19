@@ -24,6 +24,7 @@ echo "base install on cluster "$DCOS_URL
 dcos config unset marathon.url || true
 
 echo "Start DCOS services:"
+dcos package install --yes marathon-lb
 dcos package install --yes cassandra
 dcos package install --yes kafka --options=kafka-options.json
 echo "Start DCOS services: done"
