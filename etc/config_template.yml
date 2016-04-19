@@ -9,4 +9,3 @@ env:
   TWEET_PRODUCER_KAFKA_TOPIC: "dem-tweets"
 tweet_producer_version: "latest"
 tweet_consumer_version: "latest"
-presto_version: "latest"

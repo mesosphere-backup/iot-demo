@@ -4,7 +4,7 @@ cmd: !cfg_str export TWEET_CONSUMER_KAFKA_BROKERS=`curl -s master.mesos:8123/v1/
   --master mesos://leader.mesos:5050
   --executor-memory 4g
   --conf spark.mesos.coarse=true
-  --conf spark.cores.max=10
+  --conf spark.cores.max=4
   --conf spark.ui.port=$PORT0
   --conf spark.mesos.executor.docker.image=mesosphere/iot-demo:{{tweet_consumer_version}}
   --packages org.apache.spark:spark-streaming-kafka-assembly_2.10:1.6.0

@@ -1,8 +1,0 @@
-{
-  "id":"/presto",
-  "apps":[
-    !include "presto_worker.yml",
-    !include "presto_coordinator.yml",
-    !include "presto_shell.yml"
-  ]
-}

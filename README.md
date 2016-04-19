@@ -7,7 +7,7 @@ This demo shows you how to setup a service on DCOS that
 * streams tweets using the twitter stream API to [Kafka](http://kafka.apache.org)
 * processes those streams from Kafka using [Spark](http://spark.apache.org)
 * stores the enriched data into [Cassandra](http://cassandra.apache.org)
-* and make the data queryable easily via SQL by using [Presto](https://prestodb.io)
+* and make the data queryable easily via SQL by using [Zeppelin](https://zeppelin.incubator.apache.org/)
 
 There are presentations about this demo:
 
@@ -60,7 +60,7 @@ dcos kafka connection
 * Create a Twitter account with API keys ([see here for details](https://dev.twitter.com/oauth/overview/application-owner-access-tokens))
 * Insert your credentials into the configuration file
 
-# Install the tweet producers/consumers and presto
+# Install the tweet producers/consumers
 
 Execute `./bin/install.sh`.
 
@@ -77,9 +77,8 @@ NOTE: This calls a python 3 script with yaml and jinja modules. You can use pip 
 The `install.sh` script uses the `./bin/prepare-config.py` script to convert YAML configuration files into
  JSON digestible by Marathon.
 
-It produces two Marathon groups that are then send to the Marathon REST API for deployment:
+It produces a Marathon group that is then sent to the Marathon REST API for deployment:
 
-* `target/presto.json` for all of presto.
 * `target/demo.json` for the tweet producers and the tweet consumer.
 
 The prepare-config.py supports some special processing instructions inside of your YAML files to
@@ -88,93 +87,17 @@ The prepare-config.py supports some special processing instructions inside of yo
 * use configuration values (`!cfg_str`, `!cfg_path`)
 * or to loop over configuration and apply a template (`!map`)
 
-# Execute some SQL queries with Presto
+# Execute some SQL queries with Zeppelin
 
-Make sure that your load balancer is configured correctly to work with websockets. For the standard setup of DCOS
- on AWS you need to change the listener type in the AWS console:
+Once Zeppelin is running, navigate to the UI and import the notebook from this link:
 
-* Go to the AWS EC2 console and choose the region that you launched your cluster in.
-* Navigate to "Load Balancers"
-* Search for the "Public Slave" load balancer configuration of your cluster.
-* Use "Actions / Edit Listeners" and configure the protocol for port 80 to TCP instead of HTTP.
-
-Connect to your public node with your browser.
-
-Now you should have a presto shell in your browser. Copy & Paste does not work in all browsers. It worked
-for me in Chrome. Here are some sample queries to run:
-
-```sql
--- Count all the tweets
-SELECT count(1) FROM tweets;
-
--- Get a list of recent tweets
-SELECT substr(tweet_text, 1, 40) AS tweet_text, batchtime, score FROM tweets ORDER BY batchtime DESC LIMIT 20;
-
--- Count tweets by score
-SELECT count(1) AS tweet_count, query, score FROM tweets GROUP BY score, query ORDER BY query, score;
-
--- Count of tweets by language
-SELECT json_extract_scalar(tweet, '$.lang') AS languages, count(*) AS count FROM tweets GROUP BY json_extract_scalar(tweet, '$.lang') ORDER BY count DESC;
-
--- Count of tweets by location
-SELECT
-  json_extract_scalar(tweet, '$.user.location') AS location,
-  count(*) AS tweet_count
-FROM tweets
-WHERE
-  json_extract_scalar(tweet, '$.user.location') IS NOT NULL AND
-  length(json_extract_scalar(tweet, '$.user.location')) > 0
-GROUP BY json_extract_scalar(tweet, '$.user.location')
-ORDER BY tweet_count DESC
-LIMIT 100;
-
--- Most prolific tweeters
-SELECT
-  json_extract_scalar(tweet, '$.user.screen_name') AS screen_name,
-  count(*) AS tweet_count
-FROM tweets
-WHERE
-  json_extract_scalar(tweet, '$.user.screen_name') IS NOT NULL AND
-  length(json_extract_scalar(tweet, '$.user.screen_name')) > 0
-GROUP BY json_extract_scalar(tweet, '$.user.screen_name')
-ORDER BY tweet_count DESC
-LIMIT 100;
-
--- Most retweeted
-WITH
-top_retweets AS (
-  SELECT
-    json_extract_scalar(tweet, '$.retweeted_status.id') AS id,
-    count(*) AS retweet_count
-  FROM tweets
-  WHERE
-    json_extract(tweet, '$.retweeted_status') IS NOT NULL
-  GROUP BY json_extract_scalar(tweet, '$.retweeted_status.id')
-),
-all_tweets AS (
-  SELECT tweet_text,
-  json_extract_scalar(tweet, '$.retweeted_status.id') AS id
-  FROM tweets
-)
-SELECT
-  arbitrary(all_tweets.tweet_text) AS tweet_text,
-  arbitrary(top_retweets.retweet_count) AS retweet_count
-FROM top_retweets
-LEFT JOIN all_tweets
-ON top_retweets.id = all_tweets.id
-GROUP BY top_retweets.id
-ORDER BY retweet_count DESC
-LIMIT 100;
-```
+<https://raw.githubusercontent.com/mesosphere/iot-demo/master/zeppelin-notebook.json>
 
 # Use manually started shells to examine the data
 
-SSH into one of the masters or worker nodes in the cluster, and try either cqlsh or Presto:
+SSH into one of the masters or worker nodes in the cluster, and try cqlsh:
 
 ```console
-# Run presto-cli:
-docker run -i -t mesosphere/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
-
 # Run cqlsh:
 docker run -ti cassandra:2.2.5 cqlsh node-0.cassandra.mesos
 ```

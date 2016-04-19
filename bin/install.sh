@@ -31,12 +31,10 @@ echo "install on cluster "`dcos config show core.dcos_url`
 
 echo "Preparing Marathon group configuration: "
 ./bin/prepare-config.py marathon/demo.yml >target/demo.json
-./bin/prepare-config.py marathon/presto.yml >target/presto.json
 echo "Preparing Marathon group configuration: done"
 
 echo "Sending configuration to Marathon: "
 update_group "/demo" "target/demo.json"
-update_group "/presto" "target/presto.json"
 echo "Sending configuration to Marathon: done"
 
 date
