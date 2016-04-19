@@ -1,5 +1,6 @@
 id:  /demo/tweet-consumer
-cmd: !cfg_str /opt/spark/dist/bin/spark-submit
+cmd: !cfg_str export TWEET_CONSUMER_KAFKA_BROKERS=`curl -s master.mesos:8123/v1/services/_broker-0._tcp.kafka.mesos | python -c 'import sys, json; j = json.load(sys.stdin); print(j[0]["ip"] + ":" + j[0]["port"])'`
+  && /opt/spark/dist/bin/spark-submit
   --master mesos://leader.mesos:5050
   --executor-memory 4g
   --conf spark.mesos.coarse=true
@@ -9,14 +10,13 @@ cmd: !cfg_str /opt/spark/dist/bin/spark-submit
   --packages org.apache.spark:spark-streaming-kafka-assembly_2.10:1.6.0
   --class com.bythebay.pipeline.spark.streaming.StreamingRatings /streaming-assembly-1.0.jar
 env:
-  TWEET_CONSUMER_KAFKA_BROKERS: "broker-0.kafka.mesos:1025,broker-1.kafka.mesos:1025,broker-2.kafka.mesos:1025"
-  TWEET_CONSUMER_KAFKA_TOPIC: "dem-tweets"
-  TWEET_CONSUMER_CASSANDRA_SEEDS: "cassandra-dcos-node.cassandra.dcos.mesos"
-  TWEET_CONSUMER_CASSANDRA_KEYSPACE: "twitter"
+  TWEET_CONSUMER_KAFKA_TOPIC: dem-tweets
+  TWEET_CONSUMER_CASSANDRA_SEEDS: node-0.cassandra.mesos
+  TWEET_CONSUMER_CASSANDRA_KEYSPACE: twitter
 container:
-  type: "DOCKER"
+  type: DOCKER
   docker:
-    image: !cfg_str "mesosphere/iot-demo:{{tweet_consumer_version}}"
+    image: !cfg_str mesosphere/iot-demo:{{tweet_consumer_version}}
     forcePullImage: true
 cpus: 0.5
 mem: 2048

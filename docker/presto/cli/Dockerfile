@@ -1,6 +1,6 @@
 FROM java:8-jre
 
-ADD https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/0.118/presto-cli-0.118-executable.jar /usr/local/bin/presto
+ADD https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/0.144.1/presto-cli-0.144.1-executable.jar /usr/local/bin/presto
 
 RUN apt-get update && \
   apt-get install -yf less && \

@@ -46,14 +46,11 @@ Use `dcos config set core.dcos_url <your DCOS core URL>`, e.g.
 ```console
 # Start DCOS services:
 dcos package install cassandra
-dcos package install kafka
+dcos package install kafka --options=kafka-options.json
 
-# When Kafka is healthy, add brokers
-dcos kafka broker add 0..2
-dcos kafka broker update 0..2 --options num.io.threads=16,num.partitions=6,default.replication.factor=2
-dcos kafka broker start 0..2
-# Show Kafka cluster status
-dcos kafka broker list
+# Check that Cassandra & Kafka are up
+dcos cassandra connection
+dcos kafka connection
 ```
 
 # Adjust the configuration
@@ -62,7 +59,7 @@ dcos kafka broker list
 * Create a Twitter account with API keys ([see here for details](https://dev.twitter.com/oauth/overview/application-owner-access-tokens))
 * Insert your credentials into the configuration file
 
-# Install the tweet producers/consumers and presto 
+# Install the tweet producers/consumers and presto
 
 Execute `./bin/install.sh`.
 
@@ -78,7 +75,7 @@ NOTE: This calls a python 3 script with yaml and jinja modules. You can use pip 
 
 The `install.sh` script uses the `./bin/prepare-config.py` script to convert YAML configuration files into
  JSON digestible by Marathon.
- 
+
 It produces two Marathon groups that are then send to the Marathon REST API for deployment:
 
 * `target/presto.json` for all of presto.
@@ -94,7 +91,7 @@ The prepare-config.py supports some special processing instructions inside of yo
 
 Make sure that your load balancer is configured correctly to work with websockets. For the standard setup of DCOS
  on AWS you need to change the listener type in the AWS console:
- 
+
 * Go to the AWS EC2 console and choose the region that you launched your cluster in.
 * Navigate to "Load Balancers"
 * Search for the "Public Slave" load balancer configuration of your cluster.
@@ -178,5 +175,5 @@ SSH into one of the masters or worker nodes in the cluster, and try either cqlsh
 docker run -i -t mesosphere/presto-cli --server coordinator-presto.marathon.mesos:12000 --catalog cassandra --schema twitter
 
 # Run cqlsh:
-docker run -i -t --net=host --entrypoint=/usr/bin/cqlsh spotify/cassandra cassandra-dcos-node.cassandra.dcos.mesos 9160
+docker run -ti cassandra:2.2.5 cqlsh node-0.cassandra.mesos
 ```

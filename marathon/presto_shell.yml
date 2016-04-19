@@ -1,9 +1,4 @@
 id: "/presto/shell"
-acceptedResourceRoles:
-  - "slave_public"
-ports:
-  - 80
-requirePorts: true
 dependencies:
   - "/presto/coordinator"
 uris:
@@ -14,13 +9,15 @@ args:
     $MESOS_SANDBOX/gotty
     --title-format "presto twitter shell"
     --permit-write
-    --port $PORT
+    --port 8080
     /usr/local/bin/presto
     --server coordinator-presto.marathon.mesos:12000
     --catalog cassandra
     --schema twitter
 mem: 512
 cpus: 1
+labels:
+  HAPROXY_GROUP: external
 env:
   TERM: xterm
 upgradeStrategy:
@@ -30,7 +27,21 @@ container:
   type: DOCKER
   docker:
     image: !cfg_str "mesosphere/presto-cli:{{presto_version}}"
-    network: HOST
+    network: BRIDGE
+    portMappings:
+      -
+        containerPort: 8080
+        protocol: "tcp"
+        servicePort: 10000
     parameters:
       - key: entrypoint
         value: "/bin/bash"
+healthChecks:
+  -
+    protocol: "HTTP"
+    portIndex: 0
+    gracePeriodSeconds: 15
+    intervalSeconds: 5
+    timeoutSeconds: 2
+    maxConsecutiveFailures: 3
+    ignoreHttp1xx: false

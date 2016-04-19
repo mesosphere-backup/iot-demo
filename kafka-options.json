@@ -1,0 +1,7 @@
+{
+  "kafka": {
+    "default_replication_factor": 2,
+    "num_io_threads": 16,
+    "num_partitions": 6
+  }
+}
