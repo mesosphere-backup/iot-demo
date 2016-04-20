@@ -7,7 +7,7 @@ cmd: !cfg_str export TWEET_CONSUMER_KAFKA_BROKERS=`curl -s master.mesos:8123/v1/
   --conf spark.cores.max=4
   --conf spark.ui.port=$PORT0
   --conf spark.mesos.executor.docker.image=mesosphere/iot-demo:{{tweet_consumer_version}}
-  --packages org.apache.spark:spark-streaming-kafka-assembly_2.10:1.6.0
+  --packages org.apache.spark:spark-streaming-kafka-assembly_2.10:1.6.0,com.datastax.spark:spark-cassandra-connector_2.10:1.6.0-M2
   --class com.bythebay.pipeline.spark.streaming.StreamingRatings /streaming-assembly-1.0.jar
 env:
   TWEET_CONSUMER_KAFKA_TOPIC: dem-tweets

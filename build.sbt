@@ -14,14 +14,14 @@ lazy val twitter = (project in file("twitter"))
   .settings(libraryDependencies ++= twitterDeps)
 
 val akkaVersion = "2.3.11"
-val sparkVersion = "1.6.0"
-val sparkCassandraConnectorVersion = "1.4.0-M3"
+val sparkVersion = "1.6.1"
+val sparkCassandraConnectorVersion = "1.6.0-M2"
 val kafkaVersion = "0.8.2.1"
 val scalaTestVersion = "2.2.4"
 val sprayVersion = "1.3.3"
 
 lazy val streamingDeps = Seq(
-  "com.datastax.spark" % "spark-cassandra-connector_2.10" % sparkCassandraConnectorVersion,
+  "com.datastax.spark" % "spark-cassandra-connector_2.10" % sparkCassandraConnectorVersion % "provided",
   "org.apache.spark"  %% "spark-sql"             % sparkVersion % "provided",
   "org.apache.spark"  %% "spark-streaming"       % sparkVersion % "provided",
   "org.apache.spark"  %% "spark-streaming-kafka" % sparkVersion % "provided",

@@ -125,14 +125,7 @@ class TweetStreamerActor(uri: Uri, producer: ActorRef, query: String) extends Ac
       val body = HttpEntity(ContentType(MediaTypes.`application/x-www-form-urlencoded`), s"track=$query")
       val rq = HttpRequest(HttpMethods.POST, uri = uri, entity = body) ~> authorize
       sendTo(io).withResponsesReceivedBy(self)(rq)
-    case ChunkedResponseStart(response) =>
-      log.info("Response status={}", response.status.value)
-      if (response.status.isSuccess) {
-        backoff = 5
-      } else {
-        backoff = backoff * 2
-        log.error("Request failed, backoff={} {}", backoff, response)
-      }
+    case ChunkedResponseStart(_) =>
       chunkCombiner = new ChunkCombiner()
     case MessageChunk(entity, _) =>
       val entityString = entity.asString(HttpCharsets.`UTF-8`)
@@ -147,7 +140,14 @@ class TweetStreamerActor(uri: Uri, producer: ActorRef, query: String) extends Ac
           }
         )
       }
-    case _ =>
+    case HttpResponse(status, _, _, _) =>
+      log.info("Response status={}", status.value)
+      if (status.isSuccess) {
+        backoff = 5
+      } else {
+        backoff = backoff * 2
+        log.error("Request failed, backoff={}", backoff)
+      }
       reschedule
   }
 }
