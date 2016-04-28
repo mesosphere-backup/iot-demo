@@ -116,6 +116,10 @@ You can get the ELB hostname from the CCM “Public Server” link.  Once Zeppel
 SSH into one of the masters or worker nodes in the cluster, and try cqlsh:
 
 ```console
-# Run cqlsh:
-docker run -ti cassandra:2.2.5 cqlsh node-0.cassandra.mesos
+$ docker run -ti cassandra:2.2.5 cqlsh node-0.cassandra.mesos
+Connected to cassandra at node-0.cassandra.mesos:9042.
+[cqlsh 5.0.1 | Cassandra 2.2.5 | CQL spec 3.3.1 | Native protocol v4]
+Use HELP for help.
+cqlsh> select * from twitter.tweets limit 10;
+...
 ```
