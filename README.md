@@ -93,6 +93,12 @@ Once Zeppelin is running, navigate to the UI and import the notebook from this l
 
 <https://raw.githubusercontent.com/mesosphere/iot-demo/master/zeppelin-notebook.json>
 
+You'll need to add the following dependencies to Spark from the interpreter tab:
+
+```
+com.google.guava:guava:16.0.1
+com.datastax.spark:spark-cassandra-connector_2.10:1.6.0-M2
+```
 
 NOTE: if /service/zeppelin is showing as Disconnected (and hence can’t load the notebook), add the following labels to the zeppelin service and restart:
 
