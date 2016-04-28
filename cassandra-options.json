@@ -1,0 +1,5 @@
+{
+  "cassandra": {
+    "start_rpc": true
+  }
+}

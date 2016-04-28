@@ -46,7 +46,7 @@ Use `dcos config set core.dcos_url <your DCOS core URL>`, e.g.
 ```console
 # Start DCOS services:
 dcos package install marathon-lb
-dcos package install cassandra
+dcos package install cassandra --options=cassandra-options.json
 dcos package install kafka --options=kafka-options.json
 dcos package install zeppelin
 
