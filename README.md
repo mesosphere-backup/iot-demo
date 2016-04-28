@@ -43,6 +43,8 @@ Use `dcos config set core.dcos_url <your DCOS core URL>`, e.g.
 
 ## Sequence of commands to run with the DCOS CLI
 
+*Note*: This requires a 1.7 Universe.
+
 ```console
 # Start DCOS services:
 dcos package install marathon-lb
