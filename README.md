@@ -48,6 +48,7 @@ Use `dcos config set core.dcos_url <your DCOS core URL>`, e.g.
 dcos package install marathon-lb
 dcos package install cassandra
 dcos package install kafka --options=kafka-options.json
+dcos package install zeppelin
 
 # Check that Cassandra & Kafka are up
 dcos cassandra connection
