@@ -18,7 +18,7 @@ There are presentations about this demo:
 
 # Create a DCOS cluster and install the CLI
 
-Follow the instructions [here](https://docs.mesosphere.com/install/createcluster/).
+Follow the instructions [here](https://dcos.io/docs/1.7/administration/installing/).
 
 - You'll need enough capacity to run all the services, which may require at least 5 worker nodes
 - SSH access to the cluster
