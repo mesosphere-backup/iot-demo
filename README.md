@@ -94,7 +94,7 @@ Once Zeppelin is running, navigate to the UI and import the notebook from this l
 <https://raw.githubusercontent.com/mesosphere/iot-demo/master/zeppelin-notebook.json>
 
 
-NOTE: if /service/zeppelin is showing as Disconnected (and hence can’t load the notebook), add the following labels to the zeppelin service and restart:
+NOTE: if /service/zeppelin is showing as Disconnected (and hence can’t load the notebook), you can instead redirect Zeppelin out the ELB using Marathon-LB. To do this, add the following labels to the zeppelin service and restart:
 
 
 `HAPROXY_0_VHOST = [elb hostname]`
