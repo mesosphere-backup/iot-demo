@@ -96,7 +96,7 @@ Once Zeppelin is running, navigate to the UI and import the notebook from this l
 
 <https://raw.githubusercontent.com/mesosphere/iot-demo/master/zeppelin-notebook.json>
 
-You'll need to add the following dependencies to Spark from the interpreter tab:
+You'll need to add the following dependencies to Spark from the interpreter tab by clicking on "edit" in the spark section of the Interpreter, and then adding these values to the "artifact" field under the "Dependecies" section that will appear at the bottom:
 
 ```
 com.google.guava:guava:16.0.1
